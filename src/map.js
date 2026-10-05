@@ -135,7 +135,13 @@ export class CuemancoMap {
     for (const local of featuredLocales) {
       const latLng = this.svgToLatLng(local.svgCoords);
       const color = categoryColors[local.categoriaId] || '#E4007C';
-      const icon = categoryIcons[local.categoriaId] || '🌸';
+      let icon = local.icon || categoryIcons[local.categoriaId] || '🌸';
+      if (local.id === 'loc-jarocho') icon = '🌮';
+      if (local.id === 'loc-imffss') icon = '🩺';
+      if (local.id === 'loc-yura') icon = '🪴';
+      if (local.id === 'loc-draiz') icon = '🏺';
+      if (local.id === 'loc-macetas-fibra') icon = '🏺';
+      if (local.id === 'loc-jardin') icon = '🌳';
 
       const customIcon = L.divIcon({
         className: 'featured-market-marker',
