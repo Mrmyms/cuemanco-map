@@ -181,8 +181,8 @@ export class MarketUI {
 
     this.currentLocal = item;
     const heroImage = isLocal 
-      ? (item.foto || generateBotanicalHeroSvg(item.categoriaId || 'flores', item.nombre))
-      : generateBotanicalHeroSvg('servicios', item.nombre);
+      ? (item.foto || generateBotanicalHeroSvg(item.categoriaId || 'flores', item.nombre, item))
+      : generateBotanicalHeroSvg('servicios', item.nombre, item);
 
     const whatsappMessage = encodeURIComponent(
       `¡Hola! Vi su local (${item.numeroDisplay || item.nombre}) en el Mapa Interactivo de Cuemanco y quisiera información.`
