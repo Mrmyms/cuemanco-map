@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Mercado de Plantas y Flores Cuemanco · Mapa Interactivo</title>
+  <meta name="description" content="Croquis interactivo oficial del Mercado de Plantas y Flores de Cuemanco en Xochimilco. Encuentra orquídeas, suculentas, bugambilias, macetas de barro, abonos y más de 1,800 locales con búsqueda de productos y contacto directo.">
+  
+  <!-- Google Fonts: Outfit & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <!-- Contenedor Principal de la Aplicación -->
+  <div id="app" class="market-app-container">
+
+    <!-- Barra Superior Unificada: Buscador + Categorías a la derecha + Controles -->
+    <header class="top-nav-overlay">
+      <div class="search-box-container">
+        <div class="search-input-wrapper">
+          <div class="search-icon-badge" title="Buscar en Cuemanco">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </div>
+          <input 
+            type="text" 
+            id="search-input" 
+            placeholder="Buscar plantas, macetas, productos o local (ej. orquídeas, 104)..."
+            autocomplete="off"
+            spellcheck="false"
+          >
+          <button id="search-clear-btn" class="btn-clear-search" title="Borrar búsqueda" style="display: none;">
+            ✕
+          </button>
+        </div>
+
+        <!-- Menú Desplegable de Sugerencias y Autocompletado -->
+        <div id="search-dropdown" class="search-dropdown-menu" style="display: none;"></div>
+      </div>
+
+      <!-- Barra de Filtros Rápidos por Categoría Botánica (Ubicada a la derecha del buscador) -->
+      <nav class="category-scroll-bar" id="category-bar" aria-label="Categorías botánicas"></nav>
+    </header>
+
+    <!-- Contenedor del Mapa Leaflet Interactivo -->
+    <main id="cuemanco-map" class="map-canvas-viewport"></main>
+
+    <!-- Controles Flotantes del Mapa (Esquina Inferior Derecha: Centrar + Zoom In/Out) -->
+    <div class="bottom-right-map-controls" aria-label="Controles de navegación del mapa">
+      <button id="reset-view-btn" class="map-ctrl-circle-btn" title="Centrar Mercado Completo">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9"></circle>
+          <circle cx="12" cy="12" r="3"></circle>
+          <line x1="12" y1="2" x2="12" y2="5"></line>
+          <line x1="12" y1="19" x2="12" y2="22"></line>
+          <line x1="2" y1="12" x2="5" y2="12"></line>
+          <line x1="19" y1="12" x2="22" y2="12"></line>
+        </svg>
+      </button>
+
+      <div class="zoom-btn-group">
+        <button id="zoom-in-btn" class="zoom-ctrl-btn" title="Acercar mapa (+)">
+          <span>+</span>
+        </button>
+        <div class="zoom-divider"></div>
+        <button id="zoom-out-btn" class="zoom-ctrl-btn" title="Alejar mapa (−)">
+          <span>−</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Panel Lateral Deslizable / Drawer (Estilo Google Maps & HoYoLAB) -->
+    <aside id="side-drawer" class="side-detail-drawer" aria-label="Ficha de local">
+      <button id="drawer-close-btn" class="drawer-close-floating" title="Cerrar panel">
+        ✕
+      </button>
+      <div id="drawer-content" class="drawer-scroll-container">
+        <!-- El contenido se inyecta dinámicamente con ui.js -->
+      </div>
+    </aside>
+
+    <!-- Marca de agua de Cuemanco -->
+    <div class="botanical-ambient-corner" aria-hidden="true">
+      <span class="ambient-label">Cuemanco · Xochimilco</span>
+    </div>
+
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

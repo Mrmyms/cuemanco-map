@@ -1,0 +1,1077 @@
+/* ==========================================================================
+   🌸 SISTEMA DE DISEÑO: MERCADO DE CUEMANCO · ESTÉTICA DE FLORES & ROSA MEXICANO
+   ========================================================================== */
+
+:root {
+  /* Paleta Icónica: Rosa Mexicano Tradicional */
+  --rosa-mexicano: #E4007C;
+  --rosa-mexicano-hover: #D00070;
+  --rosa-mexicano-dark: #B80064;
+  --rosa-mexicano-light: #FFF0F7;
+  --rosa-mexicano-glow: rgba(228, 0, 124, 0.35);
+  --rosa-mexicano-subtle: rgba(228, 0, 124, 0.08);
+
+  /* Paleta Botánica Xochimilco */
+  --verde-botanico: #059669;
+  --verde-menta: #10B981;
+  --verde-profundo: #0F3325;
+  --verde-claro: #ECFDF5;
+
+  /* Tonos Neutros y Fondo */
+  --bg-app: #F8F6F2;
+  --bg-surface: rgba(255, 255, 255, 0.94);
+  --bg-card: #FFFFFF;
+  --text-main: #0F172A;
+  --text-muted: #64748B;
+  --text-light: #94A3B8;
+  --border-light: rgba(228, 0, 124, 0.14);
+  --border-subtle: #E2E8F0;
+
+  /* Sombras y Elevaciones */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 8px 24px -4px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(228, 0, 124, 0.06);
+  --shadow-lg: 0 16px 40px -6px rgba(15, 23, 42, 0.16), 0 8px 24px rgba(228, 0, 124, 0.12);
+  --shadow-pink: 0 8px 20px -2px rgba(228, 0, 124, 0.32);
+
+  /* Tipografías */
+  --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Radios */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+
+  --transition-normal: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Reset y base */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font-body);
+  color: var(--text-main);
+  background-color: var(--bg-app);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Contenedor Principal */
+.market-app-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   BARRA SUPERIOR FLOTANTE ESTILO GOOGLE MAPS
+   ========================================================================== */
+.top-nav-overlay {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  z-index: 1200;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+  width: calc(100vw - 32px);
+  max-width: none;
+  pointer-events: none;
+}
+
+.search-box-container {
+  position: relative;
+  width: 380px;
+  flex-shrink: 0;
+  pointer-events: auto;
+}
+
+.search-input-wrapper {
+  display: flex;
+  align-items: center;
+  height: 52px;
+  padding: 6px 14px 6px 10px;
+  background: var(--bg-surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  transition: var(--transition-normal);
+}
+
+.search-input-wrapper:focus-within {
+  border-color: var(--rosa-mexicano);
+  box-shadow: var(--shadow-lg), 0 0 0 3px var(--rosa-mexicano-subtle);
+  background: #FFFFFF;
+}
+
+.search-icon-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: var(--rosa-mexicano-light);
+  color: var(--rosa-mexicano);
+  font-size: 19px;
+  flex-shrink: 0;
+  margin-right: 10px;
+  border: 1px solid rgba(228, 0, 124, 0.2);
+}
+
+.search-input-wrapper input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  color: var(--text-main);
+  font-weight: 500;
+}
+
+.search-input-wrapper input::placeholder {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.btn-clear-search {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: #F1F5F9;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 13px;
+  transition: var(--transition-normal);
+}
+
+.btn-clear-search:hover {
+  background: #E2E8F0;
+  color: var(--rosa-mexicano);
+}
+
+/* Menú Desplegable de Sugerencias */
+.search-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 100%;
+  max-height: 440px;
+  overflow-y: auto;
+  background: #FFFFFF;
+  border: 1.5px solid var(--rosa-mexicano);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 16px 40px -4px rgba(15, 23, 42, 0.25), 0 4px 16px rgba(228, 0, 124, 0.15);
+  padding: 8px;
+  z-index: 2500;
+  animation: dropdownFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes dropdownFadeIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.search-result-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: var(--transition-normal);
+  border-bottom: 1px solid rgba(0,0,0,0.03);
+}
+
+.search-result-item:last-child {
+  border-bottom: none;
+}
+
+.search-result-item:hover {
+  background: var(--rosa-mexicano-light);
+}
+
+.res-icon-col {
+  font-size: 22px;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+.res-info-col {
+  flex: 1;
+  min-width: 0;
+}
+
+.res-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 3px;
+}
+
+.res-name {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.res-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
+  background: var(--rosa-mexicano-light);
+  color: var(--rosa-mexicano);
+  border: 1px solid rgba(228, 0, 124, 0.25);
+  flex-shrink: 0;
+}
+
+.res-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.res-cat {
+  font-weight: 600;
+  color: var(--verde-botanico);
+}
+
+.res-product-match {
+  margin-top: 5px;
+  font-size: 12px;
+  color: var(--rosa-mexicano-dark);
+  background: rgba(228, 0, 124, 0.07);
+  padding: 3px 8px;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.match-tag {
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 10px;
+}
+
+.search-empty-state {
+  text-align: center;
+  padding: 24px 16px;
+}
+
+.empty-icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.empty-title {
+  font-weight: 700;
+  color: var(--text-main);
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.empty-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* Carrusel de Categorías Botánicas (En el centro de la barra superior) */
+.category-scroll-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  flex: 1;
+  min-width: 0;
+  padding: 4px 4px 6px 4px;
+  pointer-events: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.category-scroll-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.category-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 42px;
+  padding: 0 14px;
+  border-radius: var(--radius-full);
+  background: var(--bg-surface);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: var(--transition-normal);
+  flex-shrink: 0;
+}
+
+.category-chip:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--rosa-mexicano);
+}
+
+.category-chip.active {
+  background: var(--rosa-mexicano);
+  color: #FFFFFF;
+  border-color: var(--rosa-mexicano);
+  box-shadow: var(--shadow-pink);
+}
+
+.category-chip.active .chip-icon {
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+
+/* ==========================================================================
+   CONTROLES FLOTANTES DEL MAPA (ESQUINA INFERIOR DERECHA)
+   ========================================================================== */
+.bottom-right-map-controls {
+  position: absolute;
+  bottom: 24px;
+  right: 20px;
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  pointer-events: auto;
+}
+
+.map-ctrl-circle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1.5px solid var(--border-light);
+  box-shadow: var(--shadow-md);
+  font-size: 19px;
+  cursor: pointer;
+  transition: var(--transition-normal);
+}
+
+.map-ctrl-circle-btn:hover {
+  background: #FFFFFF;
+  border-color: var(--rosa-mexicano);
+  transform: scale(1.08) rotate(12deg);
+  box-shadow: var(--shadow-pink);
+}
+
+.zoom-btn-group {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-surface);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.zoom-ctrl-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 42px;
+  border: none;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: var(--transition-normal);
+}
+
+.zoom-ctrl-btn:hover {
+  background: var(--rosa-mexicano-light);
+  color: var(--rosa-mexicano);
+}
+
+.zoom-divider {
+  width: 28px;
+  height: 1px;
+  background: var(--border-subtle);
+  margin: 0 auto;
+}
+
+/* ==========================================================================
+   MAPA CANVAS Y LEAFLET PERSONALIZADO
+   ========================================================================== */
+.map-canvas-viewport {
+  width: 100%;
+  height: 100%;
+  background-color: #E8EDE6;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  image-rendering: -webkit-optimize-contrast;
+  contain: layout size;
+}
+
+.leaflet-image-layer {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Marcadores Leaflet Estilo Cuemanco */
+.featured-market-marker {
+  background: transparent;
+  border: none;
+}
+
+.marker-pin-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: var(--transition-normal);
+}
+
+.marker-pin-wrapper:hover {
+  transform: scale(1.15) translateY(-4px);
+  z-index: 9999;
+}
+
+.marker-pin {
+  width: 34px;
+  height: 34px;
+  border-radius: 50% 50% 50% 0;
+  background: var(--pin-color, var(--rosa-mexicano));
+  transform: rotate(-45deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
+  border: 2px solid #FFFFFF;
+}
+
+.marker-symbol {
+  transform: rotate(45deg);
+  font-size: 16px;
+}
+
+.marker-label {
+  margin-top: 3px;
+  background: rgba(15, 23, 42, 0.85);
+  color: #FFFFFF;
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+  pointer-events: none;
+}
+
+/* Marcador POI */
+.poi-custom-marker {
+  background: transparent;
+  border: none;
+}
+
+.poi-marker-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  border: 2px solid var(--verde-profundo);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+  font-size: 14px;
+  transition: var(--transition-normal);
+  cursor: pointer;
+}
+
+.poi-marker-badge:hover {
+  transform: scale(1.2);
+  border-color: var(--rosa-mexicano);
+}
+
+/* Indicador de Pulso Rosa Mexicano al seleccionar local */
+.pulse-marker-wrapper {
+  pointer-events: none;
+}
+
+.mexican-pink-pulse {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.core-dot {
+  width: 14px;
+  height: 14px;
+  background: var(--rosa-mexicano);
+  border: 2.5px solid #FFFFFF;
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--rosa-mexicano);
+}
+
+.ring-pulse {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--rosa-mexicano-glow);
+  animation: mexicanPulse 1.8s infinite cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@keyframes mexicanPulse {
+  0% { transform: scale(0.4); opacity: 1; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+/* Tooltips de Leaflet */
+.custom-map-tooltip {
+  background: rgba(255, 255, 255, 0.96) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1.5px solid var(--border-light) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-md) !important;
+  padding: 8px 12px !important;
+  font-family: var(--font-body) !important;
+  font-size: 12px !important;
+  color: var(--text-main) !important;
+}
+
+.custom-map-tooltip::before {
+  border-top-color: var(--rosa-mexicano) !important;
+}
+
+.tooltip-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tooltip-header {
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.tooltip-sub {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.tooltip-cat {
+  color: var(--rosa-mexicano);
+  font-weight: 600;
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+/* ==========================================================================
+   PANEL LATERAL DESLIZABLE (GOOGLE MAPS & HOYOLAB STYLE)
+   ========================================================================== */
+.side-detail-drawer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 440px;
+  max-width: 100vw;
+  background: var(--bg-surface);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-lg);
+  border-right: 1.5px solid var(--border-light);
+  z-index: 1500;
+  transform: translate3d(-105%, 0, 0);
+  will-change: transform;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+.side-detail-drawer.open {
+  transform: translate3d(0, 0, 0);
+}
+
+.drawer-close-floating {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 10;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: var(--text-main);
+  transition: var(--transition-normal);
+}
+
+.drawer-close-floating:hover {
+  background: var(--rosa-mexicano);
+  color: #FFFFFF;
+  transform: scale(1.1);
+}
+
+.drawer-scroll-container {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--rosa-mexicano) transparent;
+}
+
+.drawer-hero-wrapper {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  background: var(--rosa-mexicano-light);
+}
+
+.drawer-hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.drawer-hero-badge {
+  position: absolute;
+  bottom: 12px;
+  left: 16px;
+  background: var(--rosa-mexicano);
+  color: #FFFFFF;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13px;
+  padding: 4px 14px;
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-pink);
+  letter-spacing: 0.5px;
+}
+
+.drawer-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.drawer-category-label {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.drawer-title {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1.25;
+  margin-bottom: 8px;
+}
+
+.drawer-location-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13.5px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.drawer-rating-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 13px;
+}
+
+.rating-stars {
+  color: #F59E0B;
+  letter-spacing: 1px;
+}
+
+.rating-val {
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.rating-reviews {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* Barra de Acciones Principales */
+.drawer-actions-bar {
+  display: grid;
+  grid-template-columns: 2fr 1.2fr 1fr;
+  gap: 8px;
+}
+
+.btn-action-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 46px;
+  background: var(--rosa-mexicano);
+  color: #FFFFFF;
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: none;
+  box-shadow: var(--shadow-pink);
+  cursor: pointer;
+  transition: var(--transition-normal);
+}
+
+.btn-action-primary:hover {
+  background: var(--rosa-mexicano-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px -2px rgba(228, 0, 124, 0.45);
+}
+
+.btn-action-secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 46px;
+  background: #FFFFFF;
+  color: var(--text-main);
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 13px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: var(--transition-normal);
+}
+
+.btn-action-secondary:hover {
+  background: var(--rosa-mexicano-light);
+  border-color: var(--rosa-mexicano);
+  color: var(--rosa-mexicano);
+}
+
+/* Secciones de Detalles */
+.drawer-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.section-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.badge-count {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  background: var(--rosa-mexicano-light);
+  color: var(--rosa-mexicano);
+}
+
+.drawer-details-box {
+  background: #FFFFFF;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.detail-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.detail-icon {
+  font-size: 18px;
+  margin-top: 1px;
+}
+
+.detail-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.detail-value {
+  font-size: 13.5px;
+  color: var(--text-main);
+  line-height: 1.4;
+}
+
+.highlight-open {
+  color: var(--verde-botanico);
+  font-weight: 700;
+}
+
+/* Catálogo de Productos */
+.products-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.product-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  background: #FFFFFF;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  transition: var(--transition-normal);
+}
+
+.product-card:hover {
+  border-color: var(--rosa-mexicano);
+  box-shadow: var(--shadow-sm);
+  transform: translateX(4px);
+}
+
+.prod-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.prod-title {
+  font-weight: 700;
+  font-size: 13.5px;
+  color: var(--text-main);
+  margin-bottom: 3px;
+}
+
+.prod-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.prod-aside {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.prod-price {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--rosa-mexicano);
+}
+
+.prod-tag {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--verde-claro);
+  color: var(--verde-botanico);
+}
+
+.btn-ask-prod {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: #25D366;
+  color: #FFFFFF;
+  text-decoration: none;
+  transition: var(--transition-normal);
+}
+
+.btn-ask-prod:hover {
+  filter: brightness(1.1);
+  transform: scale(1.05);
+}
+
+/* Servicios chips */
+.services-chips-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.service-pill {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--verde-profundo);
+  background: var(--verde-claro);
+  padding: 5px 10px;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.drawer-footer-note {
+  text-align: center;
+  font-size: 11.5px;
+  color: var(--text-light);
+  padding: 16px 0 8px;
+  border-top: 1px dashed var(--border-subtle);
+}
+
+/* Marca de Agua Ambiental */
+.botanical-ambient-corner {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  z-index: 800;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+  pointer-events: none;
+}
+
+.ambient-petal {
+  font-size: 16px;
+  animation: petalSway 3s ease-in-out infinite alternate;
+}
+
+@keyframes petalSway {
+  0% { transform: rotate(-8deg) scale(0.95); }
+  100% { transform: rotate(8deg) scale(1.08); }
+}
+
+.ambient-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--rosa-mexicano-dark);
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN (MÓVILES Y PANTALLAS PEQUEÑAS)
+   ========================================================================== */
+@media (max-width: 900px) {
+  .top-nav-overlay {
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    width: calc(100vw - 20px);
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .search-box-container {
+    width: 100%;
+  }
+
+  .category-scroll-bar {
+    width: 100%;
+    order: 2;
+    padding-bottom: 2px;
+  }
+
+  .bottom-right-map-controls {
+    bottom: 16px;
+    right: 14px;
+    gap: 8px;
+  }
+
+  .side-detail-drawer {
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    max-height: 82vh;
+    border-right: none;
+    border-top: 2px solid var(--border-light);
+    border-radius: 24px 24px 0 0;
+    transform: translate3d(0, 105%, 0);
+  }
+
+  .side-detail-drawer.open {
+    transform: translate3d(0, 0, 0);
+  }
+
+  .drawer-actions-bar {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .botanical-ambient-corner {
+    display: none;
+  }
+}
