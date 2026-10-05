@@ -22,8 +22,12 @@ export class MarketSearchEngine {
 
     // Indexar locales
     for (const loc of this.locales) {
-      const productosText = (loc.productos || []).map(p => `${p.nombre} ${p.desc || ''}`).join(' ');
-      const tagsText = (loc.badges || []).concat(loc.servicios || []).join(' ');
+      const talleresText = (loc.talleres || []).map(t => `${t.nombre} ${t.desc || ''}`).join(' ');
+      const productosText = (loc.productos || []).map(p => `${p.nombre} ${p.desc || ''}`).concat([talleresText]).join(' ');
+      const tagsText = (loc.badges || [])
+        .concat(loc.servicios || [])
+        .concat([loc.contacto || '', loc.entidad || '', loc.manzana ? `Manzana ${loc.manzana}` : ''])
+        .join(' ');
 
       documents.push({
         id: loc.id,
@@ -104,13 +108,21 @@ export class MarketSearchEngine {
 
       if (!originalItem) continue;
 
-      // Buscar si coincidió con un producto específico
+      // Buscar si coincidió con un producto o taller específico
       let matchingProduct = null;
+      const qWords = trimmed.split(/\s+/);
       if (originalItem.productos) {
-        const qWords = trimmed.split(/\s+/);
         matchingProduct = originalItem.productos.find(p => 
           qWords.some(w => p.nombre.toLowerCase().includes(w) || (p.desc && p.desc.toLowerCase().includes(w)))
         );
+      }
+      if (!matchingProduct && originalItem.talleres) {
+        const matchingTaller = originalItem.talleres.find(t =>
+          qWords.some(w => t.nombre.toLowerCase().includes(w) || (t.desc && t.desc.toLowerCase().includes(w)))
+        );
+        if (matchingTaller) {
+          matchingProduct = { nombre: `Taller: ${matchingTaller.nombre}` };
+        }
       }
 
       results.push({

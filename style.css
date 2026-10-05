@@ -1075,3 +1075,175 @@ html, body {
     display: none;
   }
 }
+
+/* ==========================================================================
+   REDES SOCIALES, TALLERES Y GOOGLE MAPS
+   ========================================================================== */
+.btn-action-maps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 46px;
+  background: #EFF6FF;
+  color: #1D4ED8;
+  border: 1.5px solid #BFDBFE;
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 13px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: var(--transition-normal);
+}
+
+.btn-action-maps:hover {
+  background: #DBEAFE;
+  border-color: #93C5FD;
+  transform: translateY(-2px);
+}
+
+.social-links-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.social-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--radius-full);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: var(--transition-normal);
+  border: 1px solid var(--border-light);
+  background: #FFFFFF;
+  color: var(--text-main);
+}
+
+.social-pill:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.social-pill.fb {
+  background: #F0F6FF;
+  border-color: #BFDBFE;
+  color: #1877F2;
+}
+
+.social-pill.ig {
+  background: #FFF1F5;
+  border-color: #FECDD3;
+  color: #E1306C;
+}
+
+.social-pill.tt {
+  background: #F8FAFC;
+  border-color: #E2E8F0;
+  color: #0F172A;
+}
+
+.social-pill.web {
+  background: #ECFDF5;
+  border-color: #A7F3D0;
+  color: #059669;
+}
+
+.social-pill.mail {
+  background: #FFFBEB;
+  border-color: #FDE68A;
+  color: #D97706;
+}
+
+.workshops-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.workshop-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  background: #FFFFFF;
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--radius-md);
+  transition: var(--transition-normal);
+}
+
+.workshop-card:hover {
+  border-color: var(--rosa-mexicano);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+
+.workshop-icon-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--rosa-mexicano-light);
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.workshop-info {
+  flex: 1;
+}
+
+.workshop-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 2px;
+}
+
+.workshop-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.contact-highlight-box {
+  background: #F0FDF4;
+  border: 1.5px solid #BBF7D0;
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.contact-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #059669;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.contact-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #065F46;
+}
+
+.contact-sub {
+  font-size: 11.5px;
+  color: #047857;
+}
+

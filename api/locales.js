@@ -57,7 +57,10 @@ export default function handler(req, res) {
   let dataset = getAllLocales();
 
   if (query.category && query.category !== 'todos') {
-    dataset = dataset.filter(l => l.categoriaId === query.category);
+    dataset = dataset.filter(l => 
+      l.categoriaId === query.category || 
+      (l.categoriasAdicionales && l.categoriasAdicionales.includes(query.category))
+    );
   }
 
   if (query.pasillo) {

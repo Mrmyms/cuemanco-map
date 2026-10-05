@@ -229,7 +229,9 @@ export class CuemancoMap {
     this.currentCategory = catId;
 
     for (const [id, item] of this.markersMap.entries()) {
-      const match = catId === 'todos' || item.local.categoriaId === catId;
+      const match = catId === 'todos' || 
+        item.local.categoriaId === catId || 
+        (item.local.categoriasAdicionales && item.local.categoriasAdicionales.includes(catId));
       if (item.isFeatured) {
         if (match) {
           this.featuredLayerGroup.addLayer(item.marker);
