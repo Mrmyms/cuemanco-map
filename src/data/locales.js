@@ -291,7 +291,7 @@ export const FEATURED_LOCALES = [
     ],
     googleMapsUrl: 'https://www.google.com/maps?q=19.298938751220703,-99.09884643554688&z=17&hl=en',
     coordsGps: { lat: 19.298938751220703, lng: -99.09884643554688 },
-    svgCoords: [260, 360],
+    svgCoords: [250, 390],
     redes: {
       facebook: 'https://www.facebook.com/search/top?q=plantas%20y%20huacales%20yura',
       facebookName: 'Plantas y huacales YURA',
@@ -333,7 +333,7 @@ export const FEATURED_LOCALES = [
     direccionCompleta: 'Lateral 12, Coapa, Parque Ecológico de Xochimilco, Xochimilco, 16036 Ciudad de México, CDMX, México',
     googleMapsUrl: 'https://maps.google.com/maps/search/Lateral%2012%2C%20Coapa%2C%20Parque%20Ecol%C3%B3gico%20de%20Xochimilco%2C%20Xochimilco%2C%2016036%20Ciudad%20de%20M%C3%A9xico%2C%20CDMX%2C%20M%C3%A9xico/@19.29922103881836,-99.09764862060547,17z?hl=en',
     coordsGps: { lat: 19.29922103881836, lng: -99.09764862060547 },
-    svgCoords: [340, 380],
+    svgCoords: [585, 205],
     descripcion: 'Hospital Botánico y Centro de Conservación de Plantas del Instituto Mexicano de Fauna Flora y Sustentabilidad Social A.C. en el Edificio Central Administrativo de Cuemanco. Diagnóstico fitosanitario, talleres de capacitación práctica y venta especializada de especies botánicas.',
     badges: ['Hospital de Plantas', 'IMFFSS A.C.', 'Edificio Central', 'Capacitación Oficial'],
     redes: {
@@ -381,7 +381,7 @@ export const FEATURED_LOCALES = [
     id: 'loc-draiz',
     numero: '24-27',
     numeroDisplay: 'Manzana 4 · Locales 24 y 27',
-    pasillo: 'Manzana 4, Locales 24 y 27 · Mercado Cuemanco',
+    pasillo: 'Manzana 4, Locales 24 y 27 · Lateral Norte',
     pasilloNum: 4,
     manzana: '4',
     nombre: "D'raiz CDMX",
@@ -398,7 +398,7 @@ export const FEATURED_LOCALES = [
     websiteDisplay: 'draizcdmx.com',
     googleMapsUrl: 'https://maps.app.goo.gl/J6EHY1PZEToeJkuV7',
     coordsGps: { lat: 19.2992313, lng: -99.0963174 },
-    svgCoords: [580, 330],
+    svgCoords: [715, 195],
     descripcion: "Estudio botánico y tienda de paisajismo en Cuemanco. Especialistas en macetas exclusivas de fibra de vidrio y cerámica de alta temperatura, plantas arquitectónicas para diseño interior/exterior, sistemas de riego automatizado y proyectos de iluminación escénica.",
     badges: ['Manzana 4', 'Macetas de Diseño', 'Paisajismo', 'Fibra y Cerámica'],
     redes: {
@@ -437,7 +437,7 @@ export const FEATURED_LOCALES = [
     horario: 'Viernes a Domingo: 7:00 AM - 4:00 PM',
     googleMapsUrl: 'https://maps.app.goo.gl/QhmzNtYX4azd3dyP8',
     coordsGps: { lat: 19.2979878, lng: -99.1001506 },
-    svgCoords: [180, 470],
+    svgCoords: [150, 520],
     descripcion: 'Puesto emblemático de comida tradicional mexicana dentro del mercado de Cuemanco. Reconocido por sus famosos tacos de costilla suave, pollo deshebrado, cecina adobada y su tradicional salsa roja de molcajete.',
     badges: ['Comida Típica', 'Tacos de Costilla', 'Salsa Roja Clásica', 'Fin de Semana'],
     servicios: [
@@ -464,13 +464,13 @@ export const FEATURED_LOCALES = [
     nombreCorto: 'Macetas De Fibra De Vidrio',
     categoriaId: 'macetas',
     categoriaNombre: 'Macetas y Jardineras',
-    rating: 4.7,
+    rating: 4.8,
     reviews: 38,
     estado: 'Abierto ahora',
     horario: 'Lunes a Domingo: 8:00 AM - 6:00 PM',
     googleMapsUrl: 'https://maps.app.goo.gl/U3hDXaprrBgsw2oBA',
     coordsGps: { lat: 19.2982058, lng: -99.0971827 },
-    svgCoords: [460, 450],
+    svgCoords: [330, 490],
     descripcion: 'Taller y punto de venta especializado en macetas y jardineras de fibra de vidrio de uso rudo y decorativo. Modelos cilindro, cono, cubo y silueta para exteriorismo y arquitectura de paisaje.',
     badges: ['Fibra de Vidrio', 'Uso Rudo', 'Directo de Fábrica'],
     servicios: [
@@ -501,7 +501,7 @@ export const FEATURED_LOCALES = [
     horario: 'Lunes a Domingo: 8:00 AM - 6:00 PM',
     googleMapsUrl: 'https://maps.app.goo.gl/CS1iWRp4Sujf93XMA',
     coordsGps: { lat: 19.298631, lng: -99.098406 },
-    svgCoords: [290, 410],
+    svgCoords: [250, 500],
     descripcion: 'Espacio ajardinado y área de exhibición botánica al aire libre en el sector suroeste del Mercado de Cuemanco. Punto de encuentro emblemático rodeado de viveros de árboles, plantas de ornato y áreas sombreadas.',
     badges: ['Área Verde', 'Exhibición Botánica', 'Pet Friendly'],
     servicios: [
@@ -529,33 +529,33 @@ export const POINTS_OF_INTEREST = [
     icon: '🏛️',
     descripcion: 'Edificio Administrativo del Mercado de Cuemanco, sede del Hospital y Centro de Conservación de Plantas (IMFFSS A.C.).',
     horario: 'Lunes a Domingo: 8:00 AM - 6:30 PM',
-    svgCoords: [340, 380],
+    svgCoords: [585, 205],
     servicios: ['Oficinas del Mercado', 'Hospital de Plantas IMFFSS', 'Capacitación y Talleres']
   },
   {
     id: 'poi-manzana4',
     numeroDisplay: 'Manzana 4',
-    pasillo: 'Pasillo Noreste',
+    pasillo: 'Pasillo Noreste · Lateral Norte',
     nombre: "Manzana 4 (D'raiz CDMX)",
     categoriaId: 'macetas',
     categoriaNombre: 'Macetas y Talavera',
     icon: '🏺',
     descripcion: "Ubicación de D'raiz CDMX (Locales 24 y 27). Macetas exclusivas de fibra de vidrio y cerámica de alta temperatura.",
     horario: '8:30 AM - 6:00 PM',
-    svgCoords: [580, 330],
+    svgCoords: [715, 195],
     servicios: ['Locales 24 y 27', 'Macetas de Diseño', 'Paisajismo']
   },
   {
     id: 'poi-manzana17',
     numeroDisplay: 'Manzana 17',
-    pasillo: 'Pasillo Central / Manzana 17',
+    pasillo: 'Pasillo Manzana 17 · Norte de Jardín',
     nombre: 'Manzana 17 (Plantas y huacales YURA)',
     categoriaId: 'flores',
     categoriaNombre: 'Flores y Ornato',
     icon: '🪴',
     descripcion: 'Ubicación de Plantas y huacales YURA (Locales 22 y 23). Venta de plantas de ornato, árboles, huacales y macetas.',
     horario: '8:00 AM - 6:30 PM',
-    svgCoords: [260, 360],
+    svgCoords: [250, 390],
     servicios: ['Locales 22 y 23', 'Plantas de Ornato', 'Huacales Artesanales', 'Macetas de Fibra y Piedra']
   },
   {
@@ -568,7 +568,7 @@ export const POINTS_OF_INTEREST = [
     icon: '🌮',
     descripcion: 'Puestos de tacos de costilla, pollo, antojitos y bebidas mexicanas tradicionales.',
     horario: '7:00 AM - 4:00 PM',
-    svgCoords: [180, 470],
+    svgCoords: [150, 520],
     servicios: ['Tacos de Costilla', 'Comida Tradicional', 'Bebidas']
   },
   {
@@ -581,7 +581,7 @@ export const POINTS_OF_INTEREST = [
     icon: '🚗',
     descripcion: 'Acceso vehicular sobre Lateral 12 hacia Parque Ecológico de Xochimilco y Edificio Central Administrativo.',
     horario: '7:00 AM - 7:00 PM',
-    svgCoords: [390, 450],
+    svgCoords: [600, 320],
     servicios: ['Acceso Vehicular', 'Bahía de Carga', 'Parque Ecológico']
   }
 ];

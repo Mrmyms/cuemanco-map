@@ -84,7 +84,8 @@ async function syncWithVercelServer({ mapController, searchEngine, uiInstance })
 
     if (remoteLocalesData && remoteLocalesData.locales && remoteLocalesData.locales.length > 0) {
       const updatedLocales = remoteLocalesData.locales;
-      const featured = updatedLocales.filter(l => l.rating >= 4.8).slice(0, 15);
+      const featuredIds = new Set(FEATURED_LOCALES.map(f => f.id));
+      const featured = updatedLocales.filter(l => featuredIds.has(l.id) || l.rating >= 4.7);
 
       mapController.renderPOIs(remotePOIs);
       mapController.renderLocales(featured.length > 0 ? featured : FEATURED_LOCALES, updatedLocales);
