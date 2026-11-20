@@ -10,6 +10,11 @@ export default function handler(req, res) {
 
   let pois = [...POINTS_OF_INTEREST];
 
+  if (query.poiType) {
+    const poiTypeLower = query.poiType.toLowerCase();
+    pois = pois.filter(p => (p.poiType || '').toLowerCase() === poiTypeLower);
+  }
+
   if (query.type) {
     const typeLower = query.type.toLowerCase();
     pois = pois.filter(p => p.id.includes(typeLower) || p.nombre.toLowerCase().includes(typeLower));

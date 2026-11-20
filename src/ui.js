@@ -5,6 +5,8 @@ export class MarketUI {
     this.searchEngine = options.searchEngine;
     this.categories = options.categories;
     this.mapController = options.mapController;
+    this.allLocales = options.locales || [];
+    this.allZones = options.zones || [];
 
     // Elementos del DOM
     this.searchInput = document.getElementById('search-input');
@@ -14,7 +16,8 @@ export class MarketUI {
     this.sideDrawer = document.getElementById('side-drawer');
     this.drawerContent = document.getElementById('drawer-content');
     this.drawerCloseBtn = document.getElementById('drawer-close-btn');
-    this.toggleStandsBtn = document.getElementById('toggle-stands-btn');
+    this.layersPanel = document.getElementById('map-layers-panel');
+    this.layersToggleBtn = document.getElementById('layers-toggle-btn');
 
     this.currentLocal = null;
     this.activeCategory = 'todos';
@@ -23,8 +26,21 @@ export class MarketUI {
     this.renderCategoryBar();
   }
 
+  escapeHtml(value) {
+    return String(value || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  updateData({ locales, zones }) {
+    if (Array.isArray(locales)) this.allLocales = locales;
+    if (Array.isArray(zones)) this.allZones = zones;
+  }
+
   initEvents() {
-    // Evento de escritura en el buscador (autocompletado en tiempo real)
     this.searchInput.addEventListener('input', (e) => {
       const query = e.target.value.trim();
       this.searchClearBtn.style.display = query.length > 0 ? 'flex' : 'none';
@@ -38,7 +54,6 @@ export class MarketUI {
       this.renderSearchResults(results, query);
     });
 
-    // Limpiar buscador
     this.searchClearBtn.addEventListener('click', () => {
       this.searchInput.value = '';
       this.searchClearBtn.style.display = 'none';
@@ -46,31 +61,36 @@ export class MarketUI {
       this.searchInput.focus();
     });
 
-    // Cerrar buscador al hacer clic fuera
     document.addEventListener('click', (e) => {
       if (!e.target.closest('.search-box-container')) {
         this.hideSearchDropdown();
       }
     });
 
-    // Cerrar panel lateral
     this.drawerCloseBtn.addEventListener('click', () => {
       this.closeSideDrawer();
       this.mapController.clearSelection();
     });
 
-    // Alternar visualización de los 1800 stands
-    if (this.toggleStandsBtn) {
-      this.toggleStandsBtn.addEventListener('click', () => {
-        const isActive = this.toggleStandsBtn.classList.toggle('active');
-        this.mapController.toggleStandsView(isActive);
-        this.toggleStandsBtn.querySelector('.btn-text').textContent = isActive 
-          ? 'Ocultar cuadrícula (1,800)' 
-          : 'Ver todos los locales (1,800)';
+    // Control de Capas (colapsado por defecto en pantallas pequeñas)
+    if (this.layersPanel && this.layersToggleBtn) {
+      if (window.innerWidth <= 900) {
+        this.layersPanel.classList.add('collapsed');
+        this.layersToggleBtn.setAttribute('aria-expanded', 'false');
+      }
+
+      this.layersToggleBtn.addEventListener('click', () => {
+        const collapsed = this.layersPanel.classList.toggle('collapsed');
+        this.layersToggleBtn.setAttribute('aria-expanded', String(!collapsed));
+      });
+
+      this.layersPanel.querySelectorAll('input[data-layer]').forEach((checkbox) => {
+        checkbox.addEventListener('change', () => {
+          this.mapController.toggleLayer(checkbox.dataset.layer, checkbox.checked);
+        });
       });
     }
 
-    // Tecla Escape para cerrar modales
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         this.closeSideDrawer();
@@ -112,8 +132,8 @@ export class MarketUI {
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
           </div>
-          <div class="empty-title">No encontramos "${query}"</div>
-          <div class="empty-hint">Intenta buscar por: <i>orquídea, bugambilia, suculenta, maceta, pasillo 4 o número de local (ej. 104, 520)</i></div>
+          <div class="empty-title">No encontramos "${this.escapeHtml(query)}"</div>
+          <div class="empty-hint">Intenta buscar por: <i>Yura, D'raiz, Hospital IMFFSS, tacos, baños, macetas, orquídeas o estacionamiento</i></div>
         </div>
       `;
       this.showSearchDropdown();
@@ -122,6 +142,10 @@ export class MarketUI {
 
     let html = '';
     for (const res of results) {
+      const badgeText = res.tipo === 'zone'
+        ? `Zona · ${res.numeroDisplay || ''}`.replace(/ · $/, '')
+        : (res.numeroDisplay || 'Servicio');
+
       html += `
         <div class="search-result-item" data-id="${res.id}">
           <div class="res-icon-col">
@@ -132,15 +156,15 @@ export class MarketUI {
           </div>
           <div class="res-info-col">
             <div class="res-header">
-              <span class="res-name">${res.nombre}</span>
-              ${res.numeroDisplay ? `<span class="res-badge">${res.numeroDisplay}</span>` : ''}
+              <span class="res-name">${this.escapeHtml(res.nombre)}</span>
+              ${badgeText ? `<span class="res-badge">${this.escapeHtml(badgeText)}</span>` : ''}
             </div>
             <div class="res-sub">
-              <span>${res.pasillo}</span> · <span class="res-cat">${res.categoriaNombre}</span>
+              <span>${this.escapeHtml(res.pasillo)}</span> · <span class="res-cat">${this.escapeHtml(res.categoriaNombre)}</span>
             </div>
             ${res.matchingProduct ? `
               <div class="res-product-match">
-                <span class="match-tag">Producto:</span> ${res.matchingProduct}
+                <span class="match-tag">Coincidencia:</span> ${this.escapeHtml(res.matchingProduct)}
               </div>
             ` : ''}
           </div>
@@ -151,7 +175,6 @@ export class MarketUI {
     this.searchDropdown.innerHTML = html;
     this.showSearchDropdown();
 
-    // Eventos de clic en resultados de búsqueda
     this.searchDropdown.querySelectorAll('.search-result-item').forEach(item => {
       item.addEventListener('click', () => {
         const id = item.dataset.id;
@@ -159,7 +182,7 @@ export class MarketUI {
         if (matched && matched.localRef) {
           this.searchInput.value = matched.localRef.nombre;
           this.hideSearchDropdown();
-          this.mapController.selectItem(matched.localRef, matched.tipo === 'local');
+          this.mapController.selectItem(matched.localRef, matched.tipo || 'local');
         }
       });
     });
@@ -173,30 +196,92 @@ export class MarketUI {
     this.searchDropdown.style.display = 'none';
   }
 
-  openSideDrawer(item, isLocal = true) {
+  syncUrlSelection(itemType, id) {
+    if (typeof window === 'undefined' || !window.history?.replaceState) return;
+    const url = new URL(window.location.href);
+    url.searchParams.delete('local');
+    url.searchParams.delete('poi');
+    url.searchParams.delete('zona');
+
+    if (itemType && id) {
+      const paramKey = itemType === 'zone' ? 'zona' : itemType === 'poi' ? 'poi' : 'local';
+      url.searchParams.set(paramKey, id);
+    }
+
+    window.history.replaceState({}, '', url.toString());
+  }
+
+  openSideDrawer(item, itemType = 'local') {
     if (!item) {
       this.closeSideDrawer();
       return;
     }
 
+    const type = typeof itemType === 'boolean'
+      ? (itemType ? 'local' : 'poi')
+      : (itemType || (item.isZone ? 'zone' : 'local'));
+
     this.currentLocal = item;
-    const heroImage = isLocal 
-      ? (item.foto || generateBotanicalHeroSvg(item.categoriaId || 'flores', item.nombre, item))
-      : generateBotanicalHeroSvg('servicios', item.nombre, item);
+    this.syncUrlSelection(type, item.id);
+
+    const heroTheme = type === 'poi'
+      ? (item.categoriaId || 'servicios')
+      : (item.categoriaId || 'flores');
+
+    const heroImage = type === 'local'
+      ? (item.foto || generateBotanicalHeroSvg(heroTheme, item.nombre, item))
+      : generateBotanicalHeroSvg(heroTheme, item.nombre, item);
 
     const whatsappMessage = encodeURIComponent(
       `¡Hola! Vi su local (${item.numeroDisplay || item.nombre}) en el Mapa Interactivo de Cuemanco y quisiera información.`
     );
     const whatsappUrl = item.whatsapp ? `https://wa.me/${item.whatsapp}?text=${whatsappMessage}` : null;
 
-    // Botón de Google Maps
     const mapsBtnHtml = item.googleMapsUrl ? `
       <a href="${item.googleMapsUrl}" target="_blank" rel="noopener" class="btn-action-maps" title="Abrir ubicación en Google Maps">
         <span>📍 Google Maps</span>
       </a>
     ` : '';
 
-    // Sección de Talleres de Capacitación (si aplica)
+    const parentZone = item.zoneId && type !== 'zone'
+      ? this.allZones.find(z => z.id === item.zoneId)
+      : null;
+
+    const parentZoneHtml = parentZone ? `
+      <button type="button" class="drawer-zone-pill" id="btn-open-parent-zone">
+        <span>🗺️ ${this.escapeHtml(parentZone.nombre)}</span>
+        <span aria-hidden="true">→</span>
+      </button>
+    ` : '';
+
+    let zoneLocalesHtml = '';
+    let zoneLocales = [];
+    if (type === 'zone') {
+      zoneLocales = this.allLocales.filter(l => l.zoneId === item.id);
+      if (zoneLocales.length > 0) {
+        zoneLocalesHtml = `
+          <div class="drawer-section">
+            <div class="section-title-row">
+              <h4 class="section-title">📍 Locales en esta zona</h4>
+              <span class="badge-count">${zoneLocales.length} verificados</span>
+            </div>
+            <div class="zone-locales-list">
+              ${zoneLocales.map(loc => `
+                <button type="button" class="zone-local-card" data-local-id="${loc.id}">
+                  <span class="zone-local-icon">${loc.icon || '🌸'}</span>
+                  <span class="zone-local-info">
+                    <span class="zone-local-name">${this.escapeHtml(loc.nombre)}</span>
+                    <span class="zone-local-meta">${this.escapeHtml(loc.numeroDisplay)} · ${this.escapeHtml(loc.categoriaNombre)}</span>
+                  </span>
+                  <span class="zone-local-arrow" aria-hidden="true">→</span>
+                </button>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+    }
+
     let workshopsHtml = '';
     if (item.talleres && item.talleres.length > 0) {
       workshopsHtml = `
@@ -225,7 +310,6 @@ export class MarketUI {
       `;
     }
 
-    // Redes Sociales y Enlaces Oficiales
     let socialHtml = '';
     const redes = item.redes || {};
     const hasSocial = redes.facebook || redes.instagram || redes.tiktok || redes.x || item.website || item.email;
@@ -269,7 +353,6 @@ export class MarketUI {
       `;
     }
 
-    // Bloque de Contacto / Entidad
     let contactHtml = '';
     if (item.contacto || item.entidad) {
       contactHtml = `
@@ -331,21 +414,22 @@ export class MarketUI {
 
     this.drawerContent.innerHTML = `
       <div class="drawer-hero-wrapper">
-        <img src="${heroImage}" alt="${item.nombre}" class="drawer-hero-img" />
+        <img src="${heroImage}" alt="${this.escapeHtml(item.nombre)}" class="drawer-hero-img" />
         <div class="drawer-hero-badge">
-          ${item.numeroDisplay || 'Cuemanco'}
+          ${this.escapeHtml(item.numeroDisplay || 'Cuemanco')}
         </div>
       </div>
 
       <div class="drawer-body">
         <div class="drawer-header">
-          <div class="drawer-category-label" style="color: var(--rosa-mexicano)">
-            ${item.categoriaNombre || 'Punto de Interés'}
+          <div class="drawer-category-label" style="color: ${item.color || 'var(--rosa-mexicano)'}">
+            ${this.escapeHtml(item.categoriaNombre || 'Punto de Interés')}
           </div>
-          <h2 class="drawer-title">${item.nombre}</h2>
+          <h2 class="drawer-title">${this.escapeHtml(item.nombre)}</h2>
           <div class="drawer-location-row">
-            <span class="loc-text">${item.pasillo}</span>
+            <span class="loc-text">${this.escapeHtml(item.pasillo)}</span>
           </div>
+          ${parentZoneHtml}
 
           ${item.rating ? `
             <div class="drawer-rating-row">
@@ -382,17 +466,18 @@ export class MarketUI {
           <div class="detail-row">
             <div>
               <div class="detail-label">Horario de Atención</div>
-              <div class="detail-value highlight-open">${item.horario || 'Abierto de 8:00 AM a 6:30 PM'}</div>
+              <div class="detail-value highlight-open">${this.escapeHtml(item.horario || 'Abierto de 8:00 AM a 6:30 PM')}</div>
             </div>
           </div>
           <div class="detail-row">
             <div>
               <div class="detail-label">Descripción</div>
-              <div class="detail-value">${item.descripcion || 'Punto tradicional dentro del Mercado de Plantas y Flores de Cuemanco.'}</div>
+              <div class="detail-value">${this.escapeHtml(item.descripcion || 'Punto tradicional dentro del Mercado de Plantas y Flores de Cuemanco.')}</div>
             </div>
           </div>
         </div>
 
+        ${zoneLocalesHtml}
         ${workshopsHtml}
         ${productsHtml}
         ${servicesHtml}
@@ -404,14 +489,38 @@ export class MarketUI {
       </div>
     `;
 
-    // Botón de compartir
+    const parentZoneBtn = document.getElementById('btn-open-parent-zone');
+    if (parentZoneBtn && parentZone) {
+      parentZoneBtn.addEventListener('click', () => {
+        this.mapController.selectItem(parentZone, 'zone');
+      });
+    }
+
+    if (zoneLocales.length > 0) {
+      this.drawerContent.querySelectorAll('.zone-local-card').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const loc = zoneLocales.find(l => l.id === btn.dataset.localId);
+          if (loc) this.mapController.selectItem(loc, 'local');
+        });
+      });
+    }
+
     const shareBtn = document.getElementById('btn-copy-share');
     if (shareBtn) {
-      shareBtn.addEventListener('click', () => {
-        navigator.clipboard.writeText(window.location.href);
-        shareBtn.querySelector('span:last-child').textContent = '¡Copiado!';
+      shareBtn.addEventListener('click', async () => {
+        const label = shareBtn.querySelector('span:last-child');
+        try {
+          if (navigator.clipboard?.writeText) {
+            await navigator.clipboard.writeText(window.location.href);
+            label.textContent = '¡Enlace copiado!';
+          } else {
+            label.textContent = 'URL lista en barra';
+          }
+        } catch {
+          label.textContent = 'URL lista en barra';
+        }
         setTimeout(() => {
-          shareBtn.querySelector('span:last-child').textContent = 'Compartir';
+          label.textContent = 'Compartir';
         }, 2000);
       });
     }
@@ -422,5 +531,6 @@ export class MarketUI {
   closeSideDrawer() {
     this.sideDrawer.classList.remove('open');
     this.currentLocal = null;
+    this.syncUrlSelection(null, null);
   }
 }

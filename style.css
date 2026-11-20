@@ -502,7 +502,7 @@ html, body {
   pointer-events: none;
 }
 
-/* Marcador POI */
+/* Marcador POI tipado (Sanitarios, Estacionamientos, Accesos) */
 .poi-custom-marker {
   background: transparent;
   border: none;
@@ -517,15 +517,125 @@ html, body {
   border-radius: 50%;
   background: #FFFFFF;
   border: 2px solid var(--verde-profundo);
-  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
-  font-size: 14px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+  font-size: 13px;
+  font-weight: 800;
   transition: var(--transition-normal);
   cursor: pointer;
 }
 
+.poi-marker-badge.poi-type-sanitario {
+  width: 26px;
+  height: 26px;
+  background: #0891B2;
+  border: 2px solid #FFFFFF;
+  color: #FFFFFF;
+}
+
+.poi-marker-badge.poi-type-sanitario .poi-letter {
+  font-size: 9.5px;
+  letter-spacing: -0.3px;
+}
+
+.poi-marker-badge.poi-type-estacionamiento {
+  border-radius: 8px;
+  background: #1D4ED8;
+  border: 2px solid #FFFFFF;
+  color: #FFFFFF;
+}
+
+.poi-marker-badge.poi-type-estacionamiento .poi-letter {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.poi-marker-badge.poi-type-acceso {
+  background: #0F766E;
+  border: 2px solid #FFFFFF;
+  color: #FFFFFF;
+}
+
 .poi-marker-badge:hover {
-  transform: scale(1.2);
-  border-color: var(--rosa-mexicano);
+  transform: scale(1.18);
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.25);
+}
+
+/* Etiquetas interactivas de Zonas y Manzanas */
+.zone-label-marker {
+  background: transparent;
+  border: none;
+}
+
+.zone-map-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transform: translate(-50%, -50%);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1.5px solid rgba(15, 23, 42, 0.12);
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.12);
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: var(--font-body);
+  transition: var(--transition-normal);
+}
+
+.zone-map-label:hover {
+  background: #FFFFFF;
+  border-color: var(--zone-color, var(--rosa-mexicano));
+  transform: translate(-50%, -52%) scale(1.04);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.16);
+}
+
+.zone-label-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--zone-color, var(--rosa-mexicano));
+  flex-shrink: 0;
+}
+
+.zone-label-texts {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.15;
+}
+
+.zone-label-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.zone-label-sub {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+/* Nivel de detalle según zoom (LOD) */
+.map-zoom-low .marker-label {
+  font-size: 9.5px;
+  opacity: 0.92;
+}
+
+.map-zoom-low .zone-label-sub {
+  display: none;
+}
+
+.map-zoom-low .zone-map-label {
+  padding: 3px 8px;
+}
+
+.map-zoom-high .zone-map-label {
+  opacity: 0.58;
+  transform: translate(-50%, -50%) scale(0.92);
 }
 
 /* Indicador de Pulso Rosa Mexicano al seleccionar local */
@@ -987,38 +1097,194 @@ html, body {
   border-top: 1px dashed var(--border-subtle);
 }
 
-/* Marca de Agua Ambiental */
-.botanical-ambient-corner {
+/* Control flotante de Capas y Leyenda */
+.map-layers-dock {
   position: absolute;
   bottom: 16px;
   left: 16px;
-  z-index: 800;
+  z-index: 1100;
+  min-width: 196px;
+  background: var(--bg-surface);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.layers-dock-header {
+  width: 100%;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 14px;
-  border-radius: var(--radius-full);
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--border-light);
-  box-shadow: var(--shadow-sm);
-  pointer-events: none;
-}
-
-.ambient-petal {
-  font-size: 16px;
-  animation: petalSway 3s ease-in-out infinite alternate;
-}
-
-@keyframes petalSway {
-  0% { transform: rotate(-8deg) scale(0.95); }
-  100% { transform: rotate(8deg) scale(1.08); }
-}
-
-.ambient-label {
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 13px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--font-body);
   font-size: 12px;
   font-weight: 700;
   color: var(--rosa-mexicano-dark);
+  transition: var(--transition-normal);
+}
+
+.layers-dock-header:hover {
+  background: var(--rosa-mexicano-subtle);
+}
+
+.layers-dock-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.layers-dock-chevron {
+  font-size: 11px;
+  color: var(--text-muted);
+  transition: transform 0.2s ease;
+}
+
+.map-layers-dock.collapsed .layers-dock-chevron {
+  transform: rotate(-90deg);
+}
+
+.layers-dock-body {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 6px 12px 10px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.map-layers-dock.collapsed .layers-dock-body {
+  display: none;
+}
+
+.layer-toggle-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-main);
+  cursor: pointer;
+  padding: 2px 0;
+}
+
+.layer-toggle-item input {
+  accent-color: var(--rosa-mexicano);
+  cursor: pointer;
+}
+
+.layer-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.layer-swatch-zonas {
+  background: #10B981;
+  border: 1.5px solid #047857;
+}
+
+.layer-swatch-locales {
+  background: var(--rosa-mexicano);
+}
+
+.layer-swatch-wc {
+  background: #0891B2;
+}
+
+.layer-swatch-accesos {
+  background: #1D4ED8;
+  border-radius: 3px;
+}
+
+/* Badges y listas de zonas dentro del Drawer */
+.drawer-zone-pill {
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border-radius: var(--radius-full);
+  background: var(--verde-claro);
+  border: 1px solid rgba(5, 150, 105, 0.25);
+  color: var(--verde-profundo);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-normal);
+}
+
+.drawer-zone-pill:hover {
+  background: #D1FAE5;
+  border-color: var(--verde-botanico);
+  transform: translateY(-1px);
+}
+
+.zone-locales-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.zone-local-card {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #FFFFFF;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-body);
+  transition: var(--transition-normal);
+}
+
+.zone-local-card:hover {
+  border-color: var(--rosa-mexicano);
+  box-shadow: var(--shadow-sm);
+  transform: translateX(3px);
+}
+
+.zone-local-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.zone-local-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.zone-local-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.zone-local-meta {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.zone-local-arrow {
+  color: var(--rosa-mexicano);
+  font-weight: 700;
+  flex-shrink: 0;
 }
 
 /* ==========================================================================
@@ -1050,6 +1316,12 @@ html, body {
     gap: 8px;
   }
 
+  .map-layers-dock {
+    bottom: 16px;
+    left: 12px;
+    min-width: 160px;
+  }
+
   .side-detail-drawer {
     top: auto;
     left: 0;
@@ -1069,10 +1341,6 @@ html, body {
 
   .drawer-actions-bar {
     grid-template-columns: 1fr 1fr;
-  }
-
-  .botanical-ambient-corner {
-    display: none;
   }
 }
 

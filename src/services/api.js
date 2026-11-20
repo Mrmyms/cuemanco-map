@@ -1,5 +1,6 @@
 import { CATEGORIES } from '../data/categories.js';
 import { FEATURED_LOCALES, POINTS_OF_INTEREST, generateAllMarketLocales } from '../data/locales.js';
+import { MARKET_ZONES } from '../data/zones.js';
 
 export class MarketApiClient {
   constructor(baseUrl = '') {
@@ -48,7 +49,7 @@ export class MarketApiClient {
         featuredCount: data.featuredCount || FEATURED_LOCALES.length
       };
     } catch (err) {
-      console.warn('[ApiClient] Usando catálogo procedural local de respaldo:', err.message);
+      console.warn('[ApiClient] Usando catálogo local de respaldo:', err.message);
       const all = generateAllMarketLocales();
       return {
         locales: all,
@@ -70,6 +71,18 @@ export class MarketApiClient {
     }
   }
 
+  async fetchZones() {
+    try {
+      const res = await fetch(`${this.baseUrl}/api/zones`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      return data.zones || MARKET_ZONES;
+    } catch (err) {
+      console.warn('[ApiClient] Usando zonas locales de respaldo:', err.message);
+      return MARKET_ZONES;
+    }
+  }
+
   async search(query, limit = 10, category = null) {
     if (!query || query.trim().length === 0) return [];
 
@@ -83,7 +96,7 @@ export class MarketApiClient {
       return data.results || [];
     } catch (err) {
       console.warn('[ApiClient] Error en búsqueda dinámica de servidor:', err.message);
-      return null; // El frontend usará su motor local de MiniSearch como fallback
+      return null;
     }
   }
 }

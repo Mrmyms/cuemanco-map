@@ -1,9 +1,10 @@
 import MiniSearch from 'minisearch';
 
 export class MarketSearchEngine {
-  constructor(locales, pois) {
+  constructor(locales = [], pois = [], zones = []) {
     this.locales = locales;
     this.pois = pois;
+    this.zones = zones;
     this.searchIndex = new MiniSearch({
       fields: ['nombre', 'numero', 'numeroDisplay', 'pasillo', 'categoriaNombre', 'productosText', 'tagsText'],
       storeFields: ['id', 'nombre', 'numeroDisplay', 'pasillo', 'categoriaId', 'categoriaNombre', 'tipo', 'svgCoords'],
@@ -37,14 +38,14 @@ export class MarketSearchEngine {
         pasillo: loc.pasillo || '',
         categoriaId: loc.categoriaId,
         categoriaNombre: loc.categoriaNombre,
-        productosText: productosText,
-        tagsText: tagsText,
+        productosText,
+        tagsText,
         tipo: 'local',
         svgCoords: loc.svgCoords
       });
     }
 
-    // Indexar Puntos de Interés (Baños, Estacionamientos, Cafetería)
+    // Indexar Puntos de Interés (Sanitarios, Estacionamientos, Accesos)
     for (const poi of this.pois) {
       documents.push({
         id: poi.id,
@@ -55,20 +56,45 @@ export class MarketSearchEngine {
         categoriaId: poi.categoriaId,
         categoriaNombre: poi.categoriaNombre,
         productosText: (poi.servicios || []).join(' '),
-        tagsText: poi.descripcion,
+        tagsText: `${poi.poiType || ''} ${poi.descripcion || ''} baños wc parking`,
         tipo: 'poi',
         svgCoords: poi.svgCoords
+      });
+    }
+
+    // Indexar Zonas y Manzanas interactivas
+    for (const zone of this.zones) {
+      documents.push({
+        id: zone.id,
+        nombre: zone.nombre,
+        numero: '',
+        numeroDisplay: zone.numeroDisplay,
+        pasillo: zone.pasillo,
+        categoriaId: zone.categoriaId,
+        categoriaNombre: zone.categoriaNombre,
+        productosText: (zone.servicios || []).join(' '),
+        tagsText: `${zone.nombreCorto || ''} ${zone.subtitulo || ''} ${zone.descripcion || ''} zona`,
+        tipo: 'zone',
+        svgCoords: zone.svgCoords
       });
     }
 
     this.searchIndex.addAll(documents);
   }
 
-  updateData(locales, pois) {
+  updateData(locales, pois, zones) {
     if (locales) this.locales = locales;
     if (pois) this.pois = pois;
+    if (zones) this.zones = zones;
     this.searchIndex.removeAll();
     this.initIndex();
+  }
+
+  findOriginalItem(id, tipo) {
+    if (tipo === 'local') return this.locales.find(l => l.id === id);
+    if (tipo === 'poi') return this.pois.find(p => p.id === id);
+    if (tipo === 'zone') return this.zones.find(z => z.id === id);
+    return null;
   }
 
   search(query, limit = 10) {
@@ -90,6 +116,7 @@ export class MarketSearchEngine {
           numeroDisplay: directLocal.numeroDisplay,
           pasillo: directLocal.pasillo,
           categoriaId: directLocal.categoriaId,
+          categoriasAdicionales: directLocal.categoriasAdicionales || [],
           categoriaNombre: directLocal.categoriaNombre,
           tipo: 'local',
           matchReason: `Local número ${targetNum}`,
@@ -102,17 +129,13 @@ export class MarketSearchEngine {
     const results = [];
 
     for (const res of rawResults.slice(0, limit)) {
-      const originalItem = res.tipo === 'local' 
-        ? this.locales.find(l => l.id === res.id)
-        : this.pois.find(p => p.id === res.id);
-
+      const originalItem = this.findOriginalItem(res.id, res.tipo);
       if (!originalItem) continue;
 
-      // Buscar si coincidió con un producto o taller específico
       let matchingProduct = null;
       const qWords = trimmed.split(/\s+/);
       if (originalItem.productos) {
-        matchingProduct = originalItem.productos.find(p => 
+        matchingProduct = originalItem.productos.find(p =>
           qWords.some(w => p.nombre.toLowerCase().includes(w) || (p.desc && p.desc.toLowerCase().includes(w)))
         );
       }
@@ -131,6 +154,7 @@ export class MarketSearchEngine {
         numeroDisplay: originalItem.numeroDisplay,
         pasillo: originalItem.pasillo,
         categoriaId: originalItem.categoriaId,
+        categoriasAdicionales: originalItem.categoriasAdicionales || [],
         categoriaNombre: originalItem.categoriaNombre,
         tipo: res.tipo,
         matchingProduct: matchingProduct ? matchingProduct.nombre : null,

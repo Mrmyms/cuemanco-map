@@ -241,6 +241,15 @@ export function generateBotanicalHeroSvg(theme, title, item = {}) {
     servicios: { bg1: '#0F172A', bg2: '#334155', accent: '#93C5FD', badge: 'SERVICIOS & ATENCIÓN', icon: '🩺' }
   };
   const t = themes[theme] || themes.flores;
+  const safeTitle = String(title || 'Cuemanco')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+  const titleFontSize = safeTitle.length > 26 ? 34 : safeTitle.length > 18 ? 42 : 52;
+  const safeNumero = String(numeroDisplay || 'Mercado Cuemanco')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" width="800" height="420">
     <defs>
       <linearGradient id="bg-def" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -251,9 +260,9 @@ export function generateBotanicalHeroSvg(theme, title, item = {}) {
     <rect width="800" height="420" fill="url(#bg-def)"/>
     <circle cx="680" cy="180" r="160" fill="#FFFFFF" fill-opacity="0.1"/>
     <text x="680" y="230" font-size="120" text-anchor="middle">${t.icon}</text>
-    <rect x="50" y="45" width="200" height="30" rx="15" fill="#FFFFFF" fill-opacity="0.2"/>
-    <text x="150" y="65" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-weight="700" font-size="12" fill="#FFFFFF" text-anchor="middle">${numeroDisplay}</text>
-    <text x="50" y="160" font-family="'Outfit', sans-serif" font-weight="900" font-size="52" fill="#FFFFFF">${title}</text>
+    <rect x="50" y="45" width="210" height="30" rx="15" fill="#FFFFFF" fill-opacity="0.2"/>
+    <text x="155" y="65" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-weight="700" font-size="12" fill="#FFFFFF" text-anchor="middle">${safeNumero}</text>
+    <text x="50" y="160" font-family="'Outfit', sans-serif" font-weight="900" font-size="${titleFontSize}" fill="#FFFFFF">${safeTitle}</text>
     <text x="50" y="210" font-family="'Outfit', sans-serif" font-weight="700" font-size="28" fill="${t.accent}">${t.badge}</text>
     <rect x="50" y="300" width="260" height="42" rx="21" fill="#FFFFFF" fill-opacity="0.25"/>
     <text x="180" y="327" font-family="'Outfit', sans-serif" font-weight="700" font-size="14" fill="#FFFFFF" text-anchor="middle">MERCADO DE CUEMANCO</text>
@@ -270,8 +279,10 @@ export const FEATURED_LOCALES = [
     pasillo: 'Manzana 17, Local 22 y 23 · Mercado Cuemanco',
     pasilloNum: 17,
     manzana: '17',
+    zoneId: 'zona-ornato',
+    icon: '🪴',
     nombre: 'Plantas y huacales YURA',
-    nombreCorto: 'Plantas y huacales YURA',
+    nombreCorto: 'YURA · Mz 17',
     categoriaId: 'flores',
     categoriaNombre: 'Plantas de Ornato, Árboles y Macetas',
     categoriasAdicionales: ['macetas', 'tierra', 'arboles'],
@@ -314,8 +325,10 @@ export const FEATURED_LOCALES = [
     numeroDisplay: 'Local 1 · Edificio Central',
     pasillo: 'Local 1, Edificio Central Administrativo · Lateral 12',
     pasilloNum: 1,
+    zoneId: 'zona-edificio-central',
+    icon: '🩺',
     nombre: 'Hospital y Centro de Conservación De Plantas',
-    nombreCorto: 'Hospital de Plantas · IMFFSS',
+    nombreCorto: 'IMFFSS · Local 1',
     entidad: 'Instituto Mexicano de Fauna Flora y Sustentabilidad Social A.C.',
     contacto: 'Jorge Pereda Cuemanco',
     categoriaId: 'servicios',
@@ -384,8 +397,10 @@ export const FEATURED_LOCALES = [
     pasillo: 'Manzana 4, Locales 24 y 27 · Lateral Norte',
     pasilloNum: 4,
     manzana: '4',
+    zoneId: 'zona-macetas',
+    icon: '🏺',
     nombre: "D'raiz CDMX",
-    nombreCorto: "D'raiz CDMX",
+    nombreCorto: "D'raiz · Mz 4",
     categoriaId: 'macetas',
     categoriaNombre: 'Macetas de Diseño y Paisajismo',
     categoriasAdicionales: ['interior', 'arboles'],
@@ -427,6 +442,8 @@ export const FEATURED_LOCALES = [
     numeroDisplay: 'Zona de Alimentos · El Jarocho',
     pasillo: 'Corredor Gastronómico Suroeste · Acceso Periférico',
     pasilloNum: 1,
+    zoneId: 'zona-gastronomia',
+    icon: '🌮',
     nombre: 'Tacos de costilla y pollo, el Jarocho',
     nombreCorto: 'Tacos el Jarocho',
     categoriaId: 'servicios',
@@ -460,8 +477,10 @@ export const FEATURED_LOCALES = [
     numeroDisplay: 'Zona Sur · Macetas de Fibra',
     pasillo: 'Corredor Sur · Lateral 12 / Periférico',
     pasilloNum: 10,
+    zoneId: 'zona-corredor-sur',
+    icon: '🏺',
     nombre: 'Macetas De Fibra De Vidrio',
-    nombreCorto: 'Macetas De Fibra De Vidrio',
+    nombreCorto: 'Macetas Fibra',
     categoriaId: 'macetas',
     categoriaNombre: 'Macetas y Jardineras',
     rating: 4.8,
@@ -491,10 +510,13 @@ export const FEATURED_LOCALES = [
     numeroDisplay: 'Área Verde Central',
     pasillo: 'Sector Suroeste · Viveros Cuemanco',
     pasilloNum: 16,
+    zoneId: 'zona-jardin',
+    icon: '🌳',
     nombre: 'Jardín del Mercado de Cuemanco',
-    nombreCorto: 'Jardín de Cuemanco',
+    nombreCorto: 'Jardín Cuemanco',
     categoriaId: 'flores',
     categoriaNombre: 'Área Verde y Exhibición Botánica',
+    categoriasAdicionales: ['arboles'],
     rating: 4.9,
     reviews: 112,
     estado: 'Abierto al público',
@@ -517,72 +539,157 @@ export const FEATURED_LOCALES = [
   }
 ];
 
-// Puntos de infraestructura oficial en el Mercado de Cuemanco
+// Puntos de infraestructura y servicios reales calibrados al plano base (sin solapar locales)
 export const POINTS_OF_INTEREST = [
   {
-    id: 'poi-edificio-central',
-    numeroDisplay: 'Edificio Central',
-    pasillo: 'Lateral 12, Coapa · Parque Ecológico de Xochimilco',
-    nombre: 'Edificio Central Administrativo',
+    id: 'poi-parking-norte',
+    poiType: 'estacionamiento',
+    zoneId: 'zona-parking-norte',
+    numeroDisplay: 'Parking Norte',
+    pasillo: 'Franja Norte · Acceso Principal',
+    nombre: 'Estacionamiento Norte',
     categoriaId: 'servicios',
-    categoriaNombre: 'Servicios',
-    icon: '🏛️',
-    descripcion: 'Edificio Administrativo del Mercado de Cuemanco, sede del Hospital y Centro de Conservación de Plantas (IMFFSS A.C.).',
-    horario: 'Lunes a Domingo: 8:00 AM - 6:30 PM',
-    svgCoords: [585, 205],
-    servicios: ['Oficinas del Mercado', 'Hospital de Plantas IMFFSS', 'Capacitación y Talleres']
+    categoriaNombre: 'Estacionamiento',
+    icon: '🅿️',
+    descripcion: 'Estacionamiento amplio a lo largo del costado norte del mercado con acceso directo a la zona de viveros, Edificio Central y Manzanas 1–6.',
+    horario: 'Lunes a Domingo: 7:00 AM - 7:00 PM',
+    svgCoords: [634, 96],
+    servicios: ['Estacionamiento Público', 'Carretilleros de Carga', 'Acceso Norte']
   },
   {
-    id: 'poi-manzana4',
-    numeroDisplay: 'Manzana 4',
-    pasillo: 'Pasillo Noreste · Lateral Norte',
-    nombre: "Manzana 4 (D'raiz CDMX)",
-    categoriaId: 'macetas',
-    categoriaNombre: 'Macetas y Talavera',
-    icon: '🏺',
-    descripcion: "Ubicación de D'raiz CDMX (Locales 24 y 27). Macetas exclusivas de fibra de vidrio y cerámica de alta temperatura.",
-    horario: '8:30 AM - 6:00 PM',
-    svgCoords: [715, 195],
-    servicios: ['Locales 24 y 27', 'Macetas de Diseño', 'Paisajismo']
-  },
-  {
-    id: 'poi-manzana17',
-    numeroDisplay: 'Manzana 17',
-    pasillo: 'Pasillo Manzana 17 · Norte de Jardín',
-    nombre: 'Manzana 17 (Plantas y huacales YURA)',
-    categoriaId: 'flores',
-    categoriaNombre: 'Flores y Ornato',
-    icon: '🪴',
-    descripcion: 'Ubicación de Plantas y huacales YURA (Locales 22 y 23). Venta de plantas de ornato, árboles, huacales y macetas.',
-    horario: '8:00 AM - 6:30 PM',
-    svgCoords: [250, 390],
-    servicios: ['Locales 22 y 23', 'Plantas de Ornato', 'Huacales Artesanales', 'Macetas de Fibra y Piedra']
-  },
-  {
-    id: 'poi-gastronomia',
-    numeroDisplay: 'Comida',
-    pasillo: 'Corredor Suroeste',
-    nombre: 'Zona Gastronómica (Tacos el Jarocho)',
+    id: 'poi-parking-sur',
+    poiType: 'estacionamiento',
+    zoneId: 'zona-parking-sur',
+    numeroDisplay: 'Parking Sur',
+    pasillo: 'Lateral 12 · Frente a Periférico',
+    nombre: 'Estacionamiento Sur · Lateral 12',
     categoriaId: 'servicios',
-    categoriaNombre: 'Servicios',
-    icon: '🌮',
-    descripcion: 'Puestos de tacos de costilla, pollo, antojitos y bebidas mexicanas tradicionales.',
-    horario: '7:00 AM - 4:00 PM',
-    svgCoords: [150, 520],
-    servicios: ['Tacos de Costilla', 'Comida Tradicional', 'Bebidas']
+    categoriaNombre: 'Estacionamiento',
+    icon: '🅿️',
+    descripcion: 'Área de estacionamiento en la franja sur junto a Lateral 12 y Corredor Sur de macetas y jardineras.',
+    horario: 'Lunes a Domingo: 7:00 AM - 7:00 PM',
+    svgCoords: [618, 494],
+    servicios: ['Estacionamiento Sur', 'Bahía de Carga', 'Acceso Periférico']
   },
   {
     id: 'poi-lateral12',
+    poiType: 'acceso',
+    zoneId: 'zona-parking-sur',
     numeroDisplay: 'Acceso Lateral 12',
-    pasillo: 'Lateral 12, Coapa',
-    nombre: 'Acceso Vehicular Lateral 12 y Estacionamiento',
+    pasillo: 'Lateral 12 · Blvd. Adolfo Ruiz Cortines',
+    nombre: 'Acceso Vehicular Lateral 12',
     categoriaId: 'servicios',
-    categoriaNombre: 'Servicios',
+    categoriaNombre: 'Acceso Vehicular',
     icon: '🚗',
-    descripcion: 'Acceso vehicular sobre Lateral 12 hacia Parque Ecológico de Xochimilco y Edificio Central Administrativo.',
-    horario: '7:00 AM - 7:00 PM',
-    svgCoords: [600, 320],
-    servicios: ['Acceso Vehicular', 'Bahía de Carga', 'Parque Ecológico']
+    descripcion: 'Acceso vehicular desde Anillo Periférico / Blvd. Adolfo Ruiz Cortines hacia Lateral 12 y Parque Ecológico de Xochimilco.',
+    horario: 'Lunes a Domingo: 7:00 AM - 7:00 PM',
+    svgCoords: [545, 535],
+    servicios: ['Acceso Vehicular', 'Bahía de Carga', 'Conexión Periférico']
+  },
+  {
+    id: 'poi-acceso-canal',
+    poiType: 'acceso',
+    zoneId: 'zona-ornato',
+    numeroDisplay: 'Acceso Poniente',
+    pasillo: 'Esquina Noroeste · Av. Canal Nacional',
+    nombre: 'Acceso Av. Canal Nacional',
+    categoriaId: 'servicios',
+    categoriaNombre: 'Acceso Peatonal y Vehicular',
+    icon: '🚶',
+    descripcion: 'Entrada poniente del Mercado de Cuemanco conectando con Av. Canal Nacional y el estacionamiento norte.',
+    horario: 'Lunes a Domingo: 7:00 AM - 7:00 PM',
+    svgCoords: [142, 126],
+    servicios: ['Acceso Peatonal', 'Conexión Canal Nacional', 'Puente Peatonal']
+  },
+  {
+    id: 'poi-bano-noroeste',
+    poiType: 'sanitario',
+    zoneId: 'zona-ornato',
+    numeroDisplay: 'Sanitarios',
+    pasillo: 'Zona Ornato y Viveros · Pasillo Norte',
+    nombre: 'Sanitarios Noroeste',
+    categoriaId: 'servicios',
+    categoriaNombre: 'Sanitarios Públicos',
+    icon: '🚻',
+    descripcion: 'Módulo de sanitarios públicos ubicado en la zona noroeste de viveros y plantas de ornato.',
+    horario: 'Lunes a Domingo: 8:00 AM - 6:30 PM',
+    svgCoords: [321, 221],
+    servicios: ['Sanitarios Públicos', 'Lavamanos']
+  },
+  {
+    id: 'poi-bano-noreste',
+    poiType: 'sanitario',
+    zoneId: 'zona-macetas',
+    numeroDisplay: 'Sanitarios',
+    pasillo: 'Zona Macetas y Diseño · Manzanas 1–6',
+    nombre: 'Sanitarios Noreste',
+    categoriaId: 'servicios',
+    categoriaNombre: 'Sanitarios Públicos',
+    icon: '🚻',
+    descripcion: 'Módulo de sanitarios públicos en el sector noreste de macetas, cerámica y paisajismo.',
+    horario: 'Lunes a Domingo: 8:00 AM - 6:30 PM',
+    svgCoords: [786, 263],
+    servicios: ['Sanitarios Públicos', 'Lavamanos']
+  },
+  {
+    id: 'poi-bano-centro-oeste',
+    poiType: 'sanitario',
+    zoneId: 'zona-flores',
+    numeroDisplay: 'Sanitarios',
+    pasillo: 'Corredor Central · Sector Flores',
+    nombre: 'Sanitarios Pasillo Central',
+    categoriaId: 'servicios',
+    categoriaNombre: 'Sanitarios Públicos',
+    icon: '🚻',
+    descripcion: 'Módulo de sanitarios ubicado en la zona centro-poniente cerca de los pasillos de flor de temporada.',
+    horario: 'Lunes a Domingo: 8:00 AM - 6:30 PM',
+    svgCoords: [402, 357],
+    servicios: ['Sanitarios Públicos', 'Lavamanos']
+  },
+  {
+    id: 'poi-bano-centro-este',
+    poiType: 'sanitario',
+    zoneId: 'zona-macetas',
+    numeroDisplay: 'Sanitarios',
+    pasillo: 'Corredor Central Este · Hacia Lateral 12',
+    nombre: 'Sanitarios Sector Este',
+    categoriaId: 'servicios',
+    categoriaNombre: 'Sanitarios Públicos',
+    icon: '🚻',
+    descripcion: 'Módulo de sanitarios públicos en el costado centro-oriente junto al acceso hacia Lateral 12.',
+    horario: 'Lunes a Domingo: 8:00 AM - 6:30 PM',
+    svgCoords: [690, 384],
+    servicios: ['Sanitarios Públicos', 'Lavamanos']
+  },
+  {
+    id: 'poi-bano-suroeste',
+    poiType: 'sanitario',
+    zoneId: 'zona-gastronomia',
+    numeroDisplay: 'Sanitarios',
+    pasillo: 'Zona Gastronómica · Junto al Jardín',
+    nombre: 'Sanitarios Suroeste',
+    categoriaId: 'servicios',
+    categoriaNombre: 'Sanitarios Públicos',
+    icon: '🚻',
+    descripcion: 'Módulo de sanitarios cercano a la zona de alimentos suroeste y al Jardín del Mercado de Cuemanco.',
+    horario: 'Lunes a Domingo: 8:00 AM - 6:30 PM',
+    svgCoords: [169, 465],
+    servicios: ['Sanitarios Públicos', 'Lavamanos']
+  },
+  {
+    id: 'poi-bano-sur',
+    poiType: 'sanitario',
+    zoneId: 'zona-flores',
+    numeroDisplay: 'Sanitarios',
+    pasillo: 'Corredor Sur · Cerca de Lateral 12',
+    nombre: 'Sanitarios Acceso Sur',
+    categoriaId: 'servicios',
+    categoriaNombre: 'Sanitarios Públicos',
+    icon: '🚻',
+    descripcion: 'Módulo de sanitarios junto al pasillo sur y la salida hacia el estacionamiento de Lateral 12.',
+    horario: 'Lunes a Domingo: 8:00 AM - 6:30 PM',
+    svgCoords: [507, 490],
+    servicios: ['Sanitarios Públicos', 'Lavamanos']
   }
 ];
 

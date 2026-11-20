@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Mercado de Plantas y Flores Cuemanco · Mapa Interactivo</title>
-  <meta name="description" content="Croquis interactivo oficial del Mercado de Plantas y Flores de Cuemanco en Xochimilco. Encuentra orquídeas, suculentas, bugambilias, macetas de barro, abonos y más de 1,800 locales con búsqueda de productos y contacto directo.">
+  <meta name="description" content="Croquis interactivo del Mercado de Plantas y Flores de Cuemanco en Xochimilco. Explora zonas, manzanas, viveros verificados, talleres botánicos, sanitarios y accesos con búsqueda inteligente.">
   
   <!-- Google Fonts: Outfit & Plus Jakarta Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -30,7 +30,7 @@
           <input 
             type="text" 
             id="search-input" 
-            placeholder="Buscar en Cuemanco: Yura, D'raiz, Hospital IMFFSS, tacos, orquídeas, macetas..."
+            placeholder="Buscar: Yura, D'raiz, IMFFSS, tacos, baños, macetas, zonas..."
             autocomplete="off"
             spellcheck="false"
           >
@@ -84,10 +84,43 @@
       </div>
     </aside>
 
-    <!-- Marca de agua de Cuemanco -->
-    <div class="botanical-ambient-corner" aria-hidden="true">
-      <span class="ambient-label">Cuemanco · Xochimilco</span>
-    </div>
+    <!-- Control flotante de Capas y Leyenda del Mapa (Esquina Inferior Izquierda) -->
+    <section id="map-layers-panel" class="map-layers-dock" aria-label="Capas del mapa">
+      <button id="layers-toggle-btn" class="layers-dock-header" type="button" aria-expanded="true">
+        <span class="layers-dock-title">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+            <polyline points="2 17 12 22 22 17"></polyline>
+            <polyline points="2 12 12 17 22 12"></polyline>
+          </svg>
+          <span>Cuemanco · Capas</span>
+        </span>
+        <span class="layers-dock-chevron" aria-hidden="true">▾</span>
+      </button>
+
+      <div id="layers-dock-body" class="layers-dock-body">
+        <label class="layer-toggle-item">
+          <input type="checkbox" data-layer="zonas" checked>
+          <span class="layer-swatch layer-swatch-zonas"></span>
+          <span>Zonas y Manzanas</span>
+        </label>
+        <label class="layer-toggle-item">
+          <input type="checkbox" data-layer="locales" checked>
+          <span class="layer-swatch layer-swatch-locales"></span>
+          <span>Locales</span>
+        </label>
+        <label class="layer-toggle-item">
+          <input type="checkbox" data-layer="sanitarios" checked>
+          <span class="layer-swatch layer-swatch-wc"></span>
+          <span>Sanitarios (6)</span>
+        </label>
+        <label class="layer-toggle-item">
+          <input type="checkbox" data-layer="accesos" checked>
+          <span class="layer-swatch layer-swatch-accesos"></span>
+          <span>Accesos y P</span>
+        </label>
+      </div>
+    </section>
 
   </div>
 
