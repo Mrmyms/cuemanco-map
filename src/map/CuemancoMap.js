@@ -1,19 +1,20 @@
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import {
-  MAP_WIDTH,
-  MAP_HEIGHT,
-  MAP_BOUNDS,
-  INITIAL_FIT_BOUNDS,
-  svgToLatLng,
+  MARKET_CENTER,
+  MAX_PAN_BOUNDS,
+  getInitialFitBounds,
+  svgToGeoLatLng,
   polygonToLatLngs,
-  resolveMapCoords
+  resolveGeoLatLng,
+  haversineMeters
 } from './projection.js';
 import {
   createFeaturedMarker,
   createStandCircle,
   createPoiMarker,
   createZoneLabelMarker,
+  createUserLocationMarker,
   createPulseMarker
 } from './markers.js';
 
@@ -21,9 +22,6 @@ export class CuemancoMap {
   constructor(containerId, options = {}) {
     this.containerId = containerId;
     this.options = options;
-    this.width = MAP_WIDTH;
-    this.height = MAP_HEIGHT;
-    this.bounds = MAP_BOUNDS;
 
     this.markersMap = new Map();
     this.poisMap = new Map();
@@ -31,59 +29,114 @@ export class CuemancoMap {
 
     this.activePulseMarker = null;
     this.activeZoneId = null;
+    this.selectedId = null;
+    this.selectedType = null;
+    this.selectedMarkerEntry = null;
     this.currentCategory = 'todos';
     this.showAllStands = true;
+    this.baseStyle = 'voyager';
+
+    const initialMobile = this.isMobileViewport();
     this.layerVisibility = {
-      zonas: true,
       locales: true,
-      sanitarios: true,
+      sanitarios: !initialMobile,
       accesos: true
     };
 
     this.onSelectCallback = options.onSelectLocal || (() => {});
+    this.onLayerChangeCallback = options.onLayerChange || (() => {});
 
     this.initMap();
   }
 
+  isMobileViewport() {
+    return typeof window !== 'undefined' && window.innerWidth <= 900;
+  }
+
   svgToLatLng(coords) {
-    return svgToLatLng(coords);
+    return svgToGeoLatLng(coords);
   }
 
   initMap() {
     this.map = L.map(this.containerId, {
-      crs: L.CRS.Simple,
-      minZoom: -1,
-      maxZoom: 2.5,
+      center: MARKET_CENTER,
+      zoom: 17,
+      minZoom: 15,
+      maxZoom: 20,
       zoomSnap: 0.25,
       zoomDelta: 0.5,
       wheelPxPerZoomLevel: 100,
+      tapTolerance: 18,
       zoomControl: false,
       preferCanvas: true,
       attributionControl: false,
       inertia: true,
       inertiaDeceleration: 3000,
-      maxBounds: [[-80, -80], [this.height + 80, this.width + 80]],
-      maxBoundsViscosity: 0.9
+      maxBounds: MAX_PAN_BOUNDS,
+      maxBoundsViscosity: 0.85
     });
 
-    this.mapOverlay = L.imageOverlay('/cuemanco-map.webp', this.bounds, {
-      opacity: 0.96,
-      interactive: false
-    }).addTo(this.map);
+    // Mapa base continuo OpenStreetMap Standard y capa Satélite Esri + referencias (sin API key)
+    this.voyagerLayer = L.tileLayer(
+      'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+      {
+        maxZoom: 20,
+        maxNativeZoom: 19
+      }
+    ).addTo(this.map);
 
-    this.map.fitBounds(INITIAL_FIT_BOUNDS);
+    this.map.getContainer().classList.add('map-base-voyager');
 
-    // Capas ordenadas de abajo hacia arriba
-    this.zonesLayerGroup = L.layerGroup().addTo(this.map);
-    this.sanitariosLayerGroup = L.layerGroup().addTo(this.map);
+    this.satelliteGroup = L.layerGroup([
+      L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        {
+          maxZoom: 20,
+          maxNativeZoom: 19
+        }
+      ),
+      L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}',
+        {
+          maxZoom: 20,
+          maxNativeZoom: 19,
+          opacity: 0.78
+        }
+      ),
+      L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
+        {
+          maxZoom: 20,
+          maxNativeZoom: 19,
+          opacity: 0.9
+        }
+      )
+    ]);
+
+    if (this.isMobileViewport()) {
+      this.map.fitBounds(getInitialFitBounds(true), {
+        paddingTopLeft: [16, 108],
+        paddingBottomRight: [16, 138]
+      });
+    } else {
+      this.map.fitBounds(getInitialFitBounds(false));
+    }
+
+    // Capas ordenadas de abajo hacia arriba (sin polígonos de sectores)
+    this.zonesLayerGroup = L.layerGroup();
+    this.sanitariosLayerGroup = L.layerGroup();
+    if (this.layerVisibility.sanitarios) {
+      this.sanitariosLayerGroup.addTo(this.map);
+    }
     this.accesosLayerGroup = L.layerGroup().addTo(this.map);
     this.standsLayerGroup = L.layerGroup().addTo(this.map);
     this.featuredLayerGroup = L.layerGroup().addTo(this.map);
+    this.userLocationLayerGroup = L.layerGroup().addTo(this.map);
     this.highlightLayerGroup = L.layerGroup().addTo(this.map);
 
     L.control.attribution({
       position: 'bottomright',
-      prefix: 'Mercado Cuemanco CDMX · Plano Interactivo'
+      prefix: 'Cuemanco · © OpenStreetMap · Esri'
     }).addTo(this.map);
 
     this.updateZoomLOD();
@@ -94,69 +147,49 @@ export class CuemancoMap {
         e.originalEvent &&
         e.originalEvent.target &&
         (e.originalEvent.target.classList.contains('leaflet-container') ||
-          e.originalEvent.target.classList.contains('leaflet-image-layer'))
+          e.originalEvent.target.classList.contains('leaflet-tile') ||
+          e.originalEvent.target.classList.contains('leaflet-pane'))
       ) {
         this.clearSelection();
       }
     });
   }
 
+  setBaseStyle(style = 'voyager') {
+    const next = style === 'satellite' ? 'satellite' : 'voyager';
+    this.baseStyle = next;
+
+    const container = this.map.getContainer();
+    container.classList.toggle('map-base-satellite', next === 'satellite');
+    container.classList.toggle('map-base-voyager', next !== 'satellite');
+
+    if (next === 'satellite') {
+      if (this.map.hasLayer(this.voyagerLayer)) this.map.removeLayer(this.voyagerLayer);
+      if (!this.map.hasLayer(this.satelliteGroup)) this.map.addLayer(this.satelliteGroup);
+    } else {
+      if (this.map.hasLayer(this.satelliteGroup)) this.map.removeLayer(this.satelliteGroup);
+      if (!this.map.hasLayer(this.voyagerLayer)) this.map.addLayer(this.voyagerLayer);
+    }
+
+    return next;
+  }
+
   updateZoomLOD() {
     const container = this.map.getContainer();
     const zoom = this.map.getZoom();
     container.classList.remove('map-zoom-low', 'map-zoom-mid', 'map-zoom-high');
-    if (zoom < -0.25) {
+    if (zoom < 17.25) {
       container.classList.add('map-zoom-low');
-    } else if (zoom < 0.75) {
+    } else if (zoom < 18.25) {
       container.classList.add('map-zoom-mid');
     } else {
       container.classList.add('map-zoom-high');
     }
   }
 
-  renderZones(zones = []) {
+  renderZones() {
     this.zonesLayerGroup.clearLayers();
     this.zonesMap.clear();
-
-    for (const zone of zones) {
-      const latLngs = polygonToLatLngs(zone.polygon);
-      if (latLngs.length < 3) continue;
-
-      const isParkingOrAccess = zone.id.includes('parking');
-      const polygon = L.polygon(latLngs, {
-        color: zone.color || '#E4007C',
-        weight: 1.8,
-        opacity: 0.75,
-        fillColor: zone.color || '#E4007C',
-        fillOpacity: 0.14,
-        dashArray: isParkingOrAccess ? '5 5' : null,
-        smoothFactor: 1.5
-      });
-
-      polygon.on('mouseover', () => {
-        polygon.setStyle({ fillOpacity: 0.28, weight: 2.8, opacity: 1 });
-      });
-
-      polygon.on('mouseout', () => {
-        this.applyZoneStyle(zone.id);
-      });
-
-      polygon.on('click', (e) => {
-        L.DomEvent.stopPropagation(e);
-        this.selectItem(zone, 'zone');
-      });
-
-      const labelLatLng = this.svgToLatLng(resolveMapCoords(zone));
-      const labelMarker = createZoneLabelMarker(zone, labelLatLng, (item, type) => {
-        this.selectItem(item, type);
-      });
-
-      this.zonesLayerGroup.addLayer(polygon);
-      this.zonesLayerGroup.addLayer(labelMarker);
-      this.zonesMap.set(zone.id, { polygon, labelMarker, zone });
-    }
-
-    this.applyZoneStyles();
   }
 
   renderPOIs(pois = []) {
@@ -164,8 +197,14 @@ export class CuemancoMap {
     this.accesosLayerGroup.clearLayers();
     this.poisMap.clear();
 
+    const defaultZMap = {
+      sanitario: 360,
+      estacionamiento: 380,
+      acceso: 390
+    };
+
     for (const poi of pois) {
-      const latLng = this.svgToLatLng(resolveMapCoords(poi));
+      const latLng = resolveGeoLatLng(poi);
       const marker = createPoiMarker(poi, latLng, (item, type) => {
         this.selectItem(item, type);
       });
@@ -175,10 +214,17 @@ export class CuemancoMap {
         : this.accesosLayerGroup;
 
       targetGroup.addLayer(marker);
-      this.poisMap.set(poi.id, { marker, poi });
+      this.poisMap.set(poi.id, {
+        marker,
+        poi,
+        defaultZIndex: defaultZMap[poi.poiType] || 370
+      });
     }
 
     this.applyCategoryStylesToZonesAndPois();
+    if (this.selectedType === 'poi' && this.selectedId) {
+      this.applySelectionFocus(this.selectedId, 'poi');
+    }
   }
 
   renderLocales(featuredLocales = [], allLocales = []) {
@@ -186,41 +232,47 @@ export class CuemancoMap {
     this.standsLayerGroup.clearLayers();
     this.markersMap.clear();
 
-    for (const local of featuredLocales) {
-      const latLng = this.svgToLatLng(resolveMapCoords(local));
+    featuredLocales.forEach((local, index) => {
+      const latLng = resolveGeoLatLng(local);
       const marker = createFeaturedMarker(local, latLng, (item, type) => {
         this.selectItem(item, type);
-      });
+      }, index);
 
       this.featuredLayerGroup.addLayer(marker);
-      this.markersMap.set(local.id, { marker, local, isFeatured: true });
-    }
+      this.markersMap.set(local.id, { marker, local, isFeatured: true, defaultZIndex: 500 });
+    });
 
     for (const local of allLocales) {
       if (this.markersMap.has(local.id)) continue;
 
-      const latLng = this.svgToLatLng(resolveMapCoords(local));
+      const latLng = resolveGeoLatLng(local);
       const circle = createStandCircle(local, latLng, (item, type) => {
         this.selectItem(item, type);
       });
 
       this.standsLayerGroup.addLayer(circle);
-      this.markersMap.set(local.id, { marker: circle, local, isFeatured: false });
+      this.markersMap.set(local.id, { marker: circle, local, isFeatured: false, defaultZIndex: 400 });
     }
 
     if (this.currentCategory !== 'todos') {
       this.filterByCategory(this.currentCategory);
     }
+
+    if (this.selectedType === 'local' && this.selectedId) {
+      this.applySelectionFocus(this.selectedId, 'local');
+    }
   }
 
   toggleLayer(layerName, visible) {
+    if (layerName === 'zonas') {
+      return { ...this.layerVisibility };
+    }
     const nextVisible = typeof visible === 'boolean'
       ? visible
       : !this.layerVisibility[layerName];
     this.layerVisibility[layerName] = nextVisible;
 
     const groupsMap = {
-      zonas: [this.zonesLayerGroup],
       locales: [this.featuredLayerGroup, ...(this.showAllStands ? [this.standsLayerGroup] : [])],
       sanitarios: [this.sanitariosLayerGroup],
       accesos: [this.accesosLayerGroup]
@@ -235,7 +287,9 @@ export class CuemancoMap {
       }
     }
 
-    return { ...this.layerVisibility };
+    const snapshot = { ...this.layerVisibility };
+    this.onLayerChangeCallback(snapshot);
+    return snapshot;
   }
 
   toggleStandsView(enable) {
@@ -257,47 +311,21 @@ export class CuemancoMap {
     );
   }
 
-  applyZoneStyle(zoneId) {
-    const entry = this.zonesMap.get(zoneId);
-    if (!entry) return;
-    const { polygon, zone } = entry;
-    const isActive = this.activeZoneId === zoneId;
+  applyZoneStyle() {}
 
-    if (isActive) {
-      polygon.setStyle({ fillOpacity: 0.28, weight: 3, opacity: 1 });
-      return;
-    }
-
-    if (this.currentCategory === 'todos') {
-      polygon.setStyle({ fillOpacity: 0.14, weight: 1.8, opacity: 0.75 });
-      return;
-    }
-
-    if (this.matchesCategory(zone, this.currentCategory)) {
-      polygon.setStyle({ fillOpacity: 0.25, weight: 2.4, opacity: 0.95 });
-    } else {
-      polygon.setStyle({ fillOpacity: 0.04, weight: 1, opacity: 0.35 });
-    }
-  }
-
-  applyZoneStyles() {
-    for (const zoneId of this.zonesMap.keys()) {
-      this.applyZoneStyle(zoneId);
-    }
-  }
+  applyZoneStyles() {}
 
   applyCategoryStylesToZonesAndPois() {
-    this.applyZoneStyles();
-
     const showFullPoi = this.currentCategory === 'todos' || this.currentCategory === 'servicios';
     for (const { marker, poi } of this.poisMap.values()) {
       const match = showFullPoi || this.matchesCategory(poi, this.currentCategory);
-      marker.setOpacity(match ? 1 : 0.42);
+      marker.setOpacity(match ? 1 : 0.4);
     }
   }
 
   filterByCategory(catId) {
     this.currentCategory = catId;
+    this.map.getContainer().classList.toggle('map-filtered', catId !== 'todos');
 
     for (const item of this.markersMap.values()) {
       const match = this.matchesCategory(item.local, catId);
@@ -312,22 +340,55 @@ export class CuemancoMap {
     this.applyCategoryStylesToZonesAndPois();
   }
 
-  highlightZone(zoneId) {
-    this.activeZoneId = zoneId || null;
-    this.applyZoneStyles();
+  highlightZone() {
+    this.activeZoneId = null;
+  }
 
-    if (!zoneId || !this.zonesMap.has(zoneId)) return;
-    const { zone } = this.zonesMap.get(zoneId);
-    const outline = L.polygon(polygonToLatLngs(zone.polygon), {
-      color: '#E4007C',
-      weight: 3,
-      opacity: 0.9,
-      fillColor: '#E4007C',
-      fillOpacity: 0.08,
-      dashArray: '6 4',
-      interactive: false
-    });
-    this.highlightLayerGroup.addLayer(outline);
+  clearSelectionFocus() {
+    const container = this.map.getContainer();
+    container.classList.remove('has-selection');
+
+    if (this.selectedMarkerEntry) {
+      const { marker, defaultZIndex } = this.selectedMarkerEntry;
+      if (typeof marker.setZIndexOffset === 'function') {
+        marker.setZIndexOffset(defaultZIndex);
+      }
+      const el = typeof marker.getElement === 'function' ? marker.getElement() : null;
+      if (el) el.classList.remove('is-selected');
+      this.selectedMarkerEntry = null;
+    }
+  }
+
+  applySelectionFocus(id, itemType) {
+    this.clearSelectionFocus();
+
+    const container = this.map.getContainer();
+    container.classList.add('has-selection');
+
+    const entry = itemType === 'local'
+      ? this.markersMap.get(id)
+      : itemType === 'poi'
+        ? this.poisMap.get(id)
+        : null;
+
+    if (!entry) return;
+
+    const { marker, defaultZIndex } = entry;
+    if (typeof marker.setZIndexOffset === 'function') {
+      marker.setZIndexOffset(900);
+    }
+
+    const markSelectedEl = () => {
+      const el = typeof marker.getElement === 'function' ? marker.getElement() : null;
+      if (el) el.classList.add('is-selected');
+    };
+
+    markSelectedEl();
+    if (typeof requestAnimationFrame === 'function') {
+      requestAnimationFrame(markSelectedEl);
+    }
+
+    this.selectedMarkerEntry = { marker, defaultZIndex };
   }
 
   selectItem(item, itemType = 'local') {
@@ -340,26 +401,54 @@ export class CuemancoMap {
       ? (itemType ? 'local' : 'poi')
       : (itemType || (item.isZone ? 'zone' : 'local'));
 
+    if (normalizedType === 'poi' && item.poiType === 'sanitario' && !this.layerVisibility.sanitarios) {
+      this.toggleLayer('sanitarios', true);
+    }
+
+    this.selectedId = item.id;
+    this.selectedType = normalizedType;
     this.highlightLayerGroup.clearLayers();
+    this.applySelectionFocus(item.id, normalizedType);
+
+    const isMobile = this.isMobileViewport();
 
     if (normalizedType === 'zone' && Array.isArray(item.polygon) && item.polygon.length >= 3) {
       const bounds = L.polygon(polygonToLatLngs(item.polygon)).getBounds();
-      this.map.flyToBounds(bounds, {
-        padding: [70, 70],
-        maxZoom: 1,
-        duration: 0.75
-      });
-      this.highlightZone(item.id);
+      if (isMobile) {
+        const mapSize = this.map.getSize();
+        this.map.flyToBounds(bounds, {
+          paddingTopLeft: [24, 110],
+          paddingBottomRight: [24, Math.round(mapSize.y * 0.48)],
+          maxZoom: 18.25,
+          duration: 0.7
+        });
+      } else {
+        this.map.flyToBounds(bounds, {
+          padding: [70, 70],
+          maxZoom: 18.5,
+          duration: 0.75
+        });
+      }
     } else {
-      const latLng = this.svgToLatLng(resolveMapCoords(item));
-      const targetZoom = Math.max(this.map.getZoom(), 1);
-      this.map.flyTo(latLng, targetZoom, {
-        duration: 0.75,
-        easeLinearity: 0.25
-      });
+      const latLng = resolveGeoLatLng(item);
+      if (isMobile) {
+        const targetZoom = Math.max(this.map.getZoom(), 18.25);
+        const projected = this.map.project(latLng, targetZoom);
+        const offsetY = Math.round(this.map.getSize().y * 0.19);
+        const shiftedLatLng = this.map.unproject([projected.x, projected.y + offsetY], targetZoom);
+        this.map.flyTo(shiftedLatLng, targetZoom, {
+          duration: 0.7,
+          easeLinearity: 0.25
+        });
+      } else {
+        const targetZoom = Math.max(this.map.getZoom(), 18.5);
+        this.map.flyTo(latLng, targetZoom, {
+          duration: 0.75,
+          easeLinearity: 0.25
+        });
+      }
 
       this.activePulseMarker = createPulseMarker(latLng).addTo(this.highlightLayerGroup);
-      this.highlightZone(item.zoneId || null);
     }
 
     this.onSelectCallback(item, normalizedType);
@@ -383,14 +472,107 @@ export class CuemancoMap {
     return false;
   }
 
+  locateUser({ onStatus = () => {} } = {}) {
+    if (typeof navigator === 'undefined' || !navigator.geolocation) {
+      onStatus({ ok: false, reason: 'unsupported' });
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        const accuracy = pos.coords.accuracy || 25;
+        const userLatLng = [lat, lng];
+
+        this.userLocationLayerGroup.clearLayers();
+
+        L.circle(userLatLng, {
+          radius: Math.min(accuracy, 120),
+          color: '#2563EB',
+          weight: 1,
+          opacity: 0.45,
+          fillColor: '#3B82F6',
+          fillOpacity: 0.14,
+          interactive: false
+        }).addTo(this.userLocationLayerGroup);
+
+        createUserLocationMarker(userLatLng).addTo(this.userLocationLayerGroup);
+
+        const distanceMeters = Math.round(haversineMeters(userLatLng, MARKET_CENTER));
+        const inBounds = L.latLngBounds(MAX_PAN_BOUNDS).contains(userLatLng);
+
+        if (distanceMeters <= 2500 && inBounds) {
+          this.map.flyTo(userLatLng, 18.5, { duration: 0.8 });
+        }
+
+        onStatus({
+          ok: true,
+          lat,
+          lng,
+          accuracy,
+          insideMarket: distanceMeters <= 550,
+          distanceMeters,
+          inBounds
+        });
+      },
+      (err) => {
+        onStatus({
+          ok: false,
+          reason: err.code === 1 ? 'denied' : 'unavailable'
+        });
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 15000
+      }
+    );
+  }
+
+  prepareIntroOverview() {
+    this.map.setView(MARKET_CENTER, 15.6, { animate: false });
+  }
+
+  playIntroFlyIn(targetId = null) {
+    if (targetId && this.selectById(targetId)) {
+      return;
+    }
+
+    if (this.isMobileViewport()) {
+      this.map.flyToBounds(getInitialFitBounds(true), {
+        paddingTopLeft: [16, 108],
+        paddingBottomRight: [16, 138],
+        duration: 1.0,
+        easeLinearity: 0.2
+      });
+    } else {
+      this.map.flyToBounds(getInitialFitBounds(false), {
+        duration: 1.0,
+        easeLinearity: 0.2
+      });
+    }
+  }
+
   resetView() {
-    this.map.flyToBounds(INITIAL_FIT_BOUNDS, { duration: 0.75 });
+    if (this.isMobileViewport()) {
+      this.map.flyToBounds(getInitialFitBounds(true), {
+        paddingTopLeft: [16, 108],
+        paddingBottomRight: [16, 138],
+        duration: 0.75
+      });
+    } else {
+      this.map.flyToBounds(getInitialFitBounds(false), { duration: 0.75 });
+    }
   }
 
   clearSelection() {
     this.highlightLayerGroup.clearLayers();
     this.activePulseMarker = null;
     this.activeZoneId = null;
+    this.selectedId = null;
+    this.selectedType = null;
+    this.clearSelectionFocus();
     this.applyZoneStyles();
     this.onSelectCallback(null, null);
   }

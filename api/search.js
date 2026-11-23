@@ -1,5 +1,4 @@
 import { POINTS_OF_INTEREST, generateAllMarketLocales } from '../src/data/locales.js';
-import { MARKET_ZONES } from '../src/data/zones.js';
 import { MarketSearchEngine } from '../src/search.js';
 import { getQueryParams, sendJson } from './_lib/helpers.js';
 
@@ -8,7 +7,7 @@ let searchEngineInstance = null;
 function getSearchEngine() {
   if (!searchEngineInstance) {
     const allLocales = generateAllMarketLocales();
-    searchEngineInstance = new MarketSearchEngine(allLocales, POINTS_OF_INTEREST, MARKET_ZONES);
+    searchEngineInstance = new MarketSearchEngine(allLocales, POINTS_OF_INTEREST);
   }
   return searchEngineInstance;
 }

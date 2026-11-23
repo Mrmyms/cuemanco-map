@@ -1,10 +1,9 @@
 import MiniSearch from 'minisearch';
 
 export class MarketSearchEngine {
-  constructor(locales = [], pois = [], zones = []) {
+  constructor(locales = [], pois = []) {
     this.locales = locales;
     this.pois = pois;
-    this.zones = zones;
     this.searchIndex = new MiniSearch({
       fields: ['nombre', 'numero', 'numeroDisplay', 'pasillo', 'categoriaNombre', 'productosText', 'tagsText'],
       storeFields: ['id', 'nombre', 'numeroDisplay', 'pasillo', 'categoriaId', 'categoriaNombre', 'tipo', 'svgCoords'],
@@ -62,30 +61,12 @@ export class MarketSearchEngine {
       });
     }
 
-    // Indexar Zonas y Manzanas interactivas
-    for (const zone of this.zones) {
-      documents.push({
-        id: zone.id,
-        nombre: zone.nombre,
-        numero: '',
-        numeroDisplay: zone.numeroDisplay,
-        pasillo: zone.pasillo,
-        categoriaId: zone.categoriaId,
-        categoriaNombre: zone.categoriaNombre,
-        productosText: (zone.servicios || []).join(' '),
-        tagsText: `${zone.nombreCorto || ''} ${zone.subtitulo || ''} ${zone.descripcion || ''} zona`,
-        tipo: 'zone',
-        svgCoords: zone.svgCoords
-      });
-    }
-
     this.searchIndex.addAll(documents);
   }
 
-  updateData(locales, pois, zones) {
+  updateData(locales, pois) {
     if (locales) this.locales = locales;
     if (pois) this.pois = pois;
-    if (zones) this.zones = zones;
     this.searchIndex.removeAll();
     this.initIndex();
   }
@@ -93,7 +74,6 @@ export class MarketSearchEngine {
   findOriginalItem(id, tipo) {
     if (tipo === 'local') return this.locales.find(l => l.id === id);
     if (tipo === 'poi') return this.pois.find(p => p.id === id);
-    if (tipo === 'zone') return this.zones.find(z => z.id === id);
     return null;
   }
 

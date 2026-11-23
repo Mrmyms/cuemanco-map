@@ -5,7 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Mercado de Plantas y Flores Cuemanco · Mapa Interactivo</title>
   <meta name="description" content="Croquis interactivo del Mercado de Plantas y Flores de Cuemanco en Xochimilco. Explora zonas, manzanas, viveros verificados, talleres botánicos, sanitarios y accesos con búsqueda inteligente.">
-  
+  <meta name="theme-color" content="#08241B">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+  <!-- Open Graph & Twitter -->
+  <meta property="og:title" content="Mercado de Plantas y Flores Cuemanco · Mapa Interactivo">
+  <meta property="og:description" content="Explora viveros verificados, talleres del Hospital de Plantas, zonas de macetas, sanitarios y accesos del Mercado de Cuemanco en Xochimilco.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="/cuemanco-map.webp">
+  <meta name="twitter:card" content="summary_large_image">
+
   <!-- Google Fonts: Outfit & Plus Jakarta Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,45 +27,84 @@
 </head>
 <body>
   <!-- Contenedor Principal de la Aplicación -->
-  <div id="app" class="market-app-container">
+  <div id="app" class="market-app-container app-intro-pending">
 
-    <!-- Barra Superior Unificada: Buscador + Categorías a la derecha + Controles -->
+    <!-- Barra Superior Unificada: Buscador con Emblema (toca para repetir intro) + Categorías -->
     <header class="top-nav-overlay">
       <div class="search-box-container">
         <div class="search-input-wrapper">
-          <div class="search-icon-badge" title="Buscar en Cuemanco">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="11" cy="11" r="8"></circle>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          <button id="brand-replay-btn" class="search-icon-badge" type="button" title="Cuemanco · Toca para ver la intro" aria-label="Reproducir introducción animada de Cuemanco">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <g fill="currentColor" opacity="0.96">
+                <ellipse cx="12" cy="5.8" rx="2.3" ry="4"/>
+                <ellipse cx="12" cy="18.2" rx="2.3" ry="4"/>
+                <ellipse cx="5.8" cy="12" rx="4" ry="2.3"/>
+                <ellipse cx="18.2" cy="12" rx="4" ry="2.3"/>
+                <ellipse cx="7.6" cy="7.6" rx="2.2" ry="3.6" transform="rotate(-45 7.6 7.6)"/>
+                <ellipse cx="16.4" cy="16.4" rx="2.2" ry="3.6" transform="rotate(-45 16.4 16.4)"/>
+                <ellipse cx="16.4" cy="7.6" rx="2.2" ry="3.6" transform="rotate(45 16.4 7.6)"/>
+                <ellipse cx="7.6" cy="16.4" rx="2.2" ry="3.6" transform="rotate(45 7.6 16.4)"/>
+              </g>
+              <circle cx="12" cy="12" r="2.7" fill="#FDE047"/>
             </svg>
-          </div>
+          </button>
           <input 
             type="text" 
             id="search-input" 
-            placeholder="Buscar: Yura, D'raiz, IMFFSS, tacos, baños, macetas, zonas..."
+            placeholder="Buscar: Yura, orquídeas, bonsái, suculentas, tacos..."
             autocomplete="off"
             spellcheck="false"
+            aria-label="Buscar locales, plantas o servicios en Cuemanco"
           >
-          <button id="search-clear-btn" class="btn-clear-search" title="Borrar búsqueda" style="display: none;">
-            ✕
+          <span id="search-live-pill" class="search-live-pill" title="Estado actual del mercado en CDMX"></span>
+          <button id="search-clear-btn" class="btn-clear-search" title="Borrar búsqueda" style="display: none;" type="button" aria-label="Borrar búsqueda">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
           </button>
         </div>
 
-        <!-- Menú Desplegable de Sugerencias y Autocompletado -->
+        <!-- Menú Desplegable de Sugerencias Rápidas y Autocompletado -->
         <div id="search-dropdown" class="search-dropdown-menu" style="display: none;"></div>
       </div>
 
-      <!-- Barra de Filtros Rápidos por Categoría Botánica (Ubicada a la derecha del buscador) -->
+      <!-- Barra de Filtros Rápidos por Categoría Botánica -->
       <nav class="category-scroll-bar" id="category-bar" aria-label="Categorías botánicas"></nav>
     </header>
 
     <!-- Contenedor del Mapa Leaflet Interactivo -->
     <main id="cuemanco-map" class="map-canvas-viewport"></main>
+    <div class="map-ambient-vignette" aria-hidden="true"></div>
+    <div id="map-toast" class="map-toast" role="status" aria-live="polite"></div>
 
-    <!-- Controles Flotantes del Mapa (Esquina Inferior Derecha: Centrar + Zoom In/Out) -->
+    <!-- Controles Flotantes del Mapa (Móvil: Capas + Ubicación + Centrar | Escritorio: Brújula + Ubicación + Centrar + Zoom) -->
     <div class="bottom-right-map-controls" aria-label="Controles de navegación del mapa">
-      <button id="reset-view-btn" class="map-ctrl-circle-btn" title="Centrar Mercado Completo">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <button id="compass-btn" class="map-compass-badge desktop-only-ctrl" type="button" title="Norte · Restablecer vista del mercado">
+        <span class="compass-n">N</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <polygon points="12 3 15 12 12 10.5 9 12 12 3" fill="#E4007C"/>
+          <polygon points="12 21 15 12 12 13.5 9 12 12 21" fill="#94A3B8"/>
+        </svg>
+      </button>
+
+      <button id="mobile-layers-trigger" class="map-ctrl-circle-btn mobile-only-ctrl" type="button" title="Capas del mapa" aria-label="Capas del mapa" aria-expanded="false">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+          <polyline points="2 17 12 22 22 17"></polyline>
+          <polyline points="2 12 12 17 22 12"></polyline>
+        </svg>
+        <span class="layers-filter-dot" aria-hidden="true"></span>
+      </button>
+
+      <button id="locate-me-btn" class="map-ctrl-circle-btn" type="button" title="Mi ubicación actual (GPS)" aria-label="Mi ubicación actual">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+        </svg>
+      </button>
+
+      <button id="reset-view-btn" class="map-ctrl-circle-btn" type="button" title="Centrar Mercado Completo" aria-label="Centrar Mercado Completo">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <circle cx="12" cy="12" r="9"></circle>
           <circle cx="12" cy="12" r="3"></circle>
           <line x1="12" y1="2" x2="12" y2="5"></line>
@@ -63,28 +114,61 @@
         </svg>
       </button>
 
-      <div class="zoom-btn-group">
-        <button id="zoom-in-btn" class="zoom-ctrl-btn" title="Acercar mapa (+)">
+      <div class="zoom-btn-group desktop-only-ctrl">
+        <button id="zoom-in-btn" class="zoom-ctrl-btn" type="button" title="Acercar mapa (+)" aria-label="Acercar mapa">
           <span>+</span>
         </button>
         <div class="zoom-divider"></div>
-        <button id="zoom-out-btn" class="zoom-ctrl-btn" title="Alejar mapa (−)">
+        <button id="zoom-out-btn" class="zoom-ctrl-btn" type="button" title="Alejar mapa (−)" aria-label="Alejar mapa">
           <span>−</span>
         </button>
       </div>
     </div>
 
-    <!-- Panel Lateral Deslizable / Drawer (Estilo Google Maps & HoYoLAB) -->
+    <!-- Carrusel Deslizable de Lugares Destacados (Mobile Swipe Cards + Desktop Dock) -->
+    <section id="featured-dock" class="featured-explorer-dock" aria-label="Lugares verificados destacados">
+      <div class="featured-dock-top">
+        <button id="featured-toggle-btn" class="featured-toggle-btn" type="button" aria-expanded="true">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 3l1.7 4.3L18 9l-4.3 1.7L12 15l-1.7-4.3L6 9l4.3-1.7L12 3z"></path>
+          </svg>
+          <span>Destacados</span>
+          <span class="featured-count-pill">15</span>
+          <span class="featured-chevron" aria-hidden="true">▾</span>
+        </button>
+        <div class="featured-nav-arrows">
+          <button id="featured-prev-btn" class="featured-step-btn" type="button" title="Anterior destacado" aria-label="Anterior destacado">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+          <button id="featured-next-btn" class="featured-step-btn" type="button" title="Siguiente destacado" aria-label="Siguiente destacado">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div id="featured-strip-list" class="featured-strip-list"></div>
+    </section>
+
+    <!-- Bottom Sheet Nativo Deslizable (Móvil 2 detents) / Tarjeta Flotante (Escritorio) -->
     <aside id="side-drawer" class="side-detail-drawer" aria-label="Ficha de local">
-      <button id="drawer-close-btn" class="drawer-close-floating" title="Cerrar panel">
-        ✕
+      <div class="drawer-drag-handle" id="drawer-drag-handle" aria-hidden="true">
+        <span></span>
+      </div>
+      <button id="drawer-close-btn" class="drawer-close-floating" type="button" title="Cerrar panel" aria-label="Cerrar panel">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
       </button>
       <div id="drawer-content" class="drawer-scroll-container">
         <!-- El contenido se inyecta dinámicamente con ui.js -->
       </div>
     </aside>
 
-    <!-- Control flotante de Capas y Leyenda del Mapa (Esquina Inferior Izquierda) -->
+    <!-- Popover Flotante de Capas (Móvil) / Dock Inferior Izquierdo (Escritorio) -->
     <section id="map-layers-panel" class="map-layers-dock" aria-label="Capas del mapa">
       <button id="layers-toggle-btn" class="layers-dock-header" type="button" aria-expanded="true">
         <span class="layers-dock-title">
@@ -93,21 +177,23 @@
             <polyline points="2 17 12 22 22 17"></polyline>
             <polyline points="2 12 12 17 22 12"></polyline>
           </svg>
-          <span>Cuemanco · Capas</span>
+          <span>Capas</span>
         </span>
-        <span class="layers-dock-chevron" aria-hidden="true">▾</span>
+        <span class="layers-header-right">
+          <span id="market-live-pill" class="market-live-pill" title="Horario general del mercado en CDMX"></span>
+          <span class="layers-dock-chevron" aria-hidden="true">▾</span>
+        </span>
       </button>
 
       <div id="layers-dock-body" class="layers-dock-body">
-        <label class="layer-toggle-item">
-          <input type="checkbox" data-layer="zonas" checked>
-          <span class="layer-swatch layer-swatch-zonas"></span>
-          <span>Zonas y Manzanas</span>
-        </label>
+        <div class="map-style-segmented" role="radiogroup" aria-label="Estilo de mapa">
+          <button type="button" class="map-style-btn active" data-map-style="voyager">Mapa</button>
+          <button type="button" class="map-style-btn" data-map-style="satellite">Satélite</button>
+        </div>
         <label class="layer-toggle-item">
           <input type="checkbox" data-layer="locales" checked>
           <span class="layer-swatch layer-swatch-locales"></span>
-          <span>Locales</span>
+          <span>Locales (15)</span>
         </label>
         <label class="layer-toggle-item">
           <input type="checkbox" data-layer="sanitarios" checked>
@@ -122,6 +208,132 @@
       </div>
     </section>
 
+  </div>
+
+  <!-- Intro Cinemática: El Florecer de Cuemanco -->
+  <div id="intro-splash" class="intro-splash is-playing" role="dialog" aria-modal="true" aria-label="Bienvenida al Mapa Interactivo de Cuemanco">
+    <div class="intro-orb intro-orb-pink" aria-hidden="true"></div>
+    <div class="intro-orb intro-orb-emerald" aria-hidden="true"></div>
+    <div class="intro-orb intro-orb-gold" aria-hidden="true"></div>
+    <div class="intro-grid-overlay" aria-hidden="true"></div>
+
+    <!-- Pétalos flotantes -->
+    <div class="intro-petals" aria-hidden="true">
+      <svg class="intro-petal" style="--x: 12%; --dur: 5.4s; --delay: 0.1s; --scale: 0.9; --drift: 26px" viewBox="0 0 24 36"><path d="M12 0 C22 10 22 26 12 36 C2 26 2 10 12 0 Z" fill="#FF47A3"/></svg>
+      <svg class="intro-petal" style="--x: 26%; --dur: 6.2s; --delay: 0.5s; --scale: 0.7; --drift: -22px" viewBox="0 0 24 36"><path d="M12 0 C22 10 22 26 12 36 C2 26 2 10 12 0 Z" fill="#F472B6"/></svg>
+      <svg class="intro-petal" style="--x: 41%; --dur: 5.1s; --delay: 0.25s; --scale: 1.05; --drift: 18px" viewBox="0 0 24 36"><path d="M12 0 C22 10 22 26 12 36 C2 26 2 10 12 0 Z" fill="#34D399"/></svg>
+      <svg class="intro-petal" style="--x: 58%; --dur: 5.8s; --delay: 0.65s; --scale: 0.8; --drift: -30px" viewBox="0 0 24 36"><path d="M12 0 C22 10 22 26 12 36 C2 26 2 10 12 0 Z" fill="#E4007C"/></svg>
+      <svg class="intro-petal" style="--x: 73%; --dur: 4.9s; --delay: 0.15s; --scale: 0.95; --drift: 24px" viewBox="0 0 24 36"><path d="M12 0 C22 10 22 26 12 36 C2 26 2 10 12 0 Z" fill="#FDE047"/></svg>
+      <svg class="intro-petal" style="--x: 86%; --dur: 6.0s; --delay: 0.4s; --scale: 0.75; --drift: -18px" viewBox="0 0 24 36"><path d="M12 0 C22 10 22 26 12 36 C2 26 2 10 12 0 Z" fill="#FF85C0"/></svg>
+      <svg class="intro-petal" style="--x: 19%; --dur: 5.5s; --delay: 0.9s; --scale: 0.85; --drift: 20px" viewBox="0 0 24 36"><path d="M12 0 C22 10 22 26 12 36 C2 26 2 10 12 0 Z" fill="#10B981"/></svg>
+      <svg class="intro-petal" style="--x: 68%; --dur: 5.3s; --delay: 0.8s; --scale: 0.8; --drift: -24px" viewBox="0 0 24 36"><path d="M12 0 C22 10 22 26 12 36 C2 26 2 10 12 0 Z" fill="#F9A8D4"/></svg>
+    </div>
+
+    <div class="intro-stage">
+      <div class="intro-emblem-wrap">
+        <div class="intro-ripple" aria-hidden="true"></div>
+        <div class="intro-ripple intro-ripple-2" aria-hidden="true"></div>
+
+        <!-- Dalia Mexicana de 16 pétalos + Brújula Botánica -->
+        <svg class="intro-emblem-svg" viewBox="0 0 220 220" width="220" height="220" aria-hidden="true">
+          <defs>
+            <linearGradient id="intro-petal-outer-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#FF5EB1"/>
+              <stop offset="55%" stop-color="#E4007C"/>
+              <stop offset="100%" stop-color="#9D0055"/>
+            </linearGradient>
+            <linearGradient id="intro-petal-inner-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#FFFFFF"/>
+              <stop offset="70%" stop-color="#FCE7F3"/>
+              <stop offset="100%" stop-color="#F9A8D4"/>
+            </linearGradient>
+            <linearGradient id="intro-leaf-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#34D399"/>
+              <stop offset="100%" stop-color="#047857"/>
+            </linearGradient>
+            <radialGradient id="intro-core-grad" cx="40%" cy="35%" r="65%">
+              <stop offset="0%" stop-color="#FEF08A"/>
+              <stop offset="55%" stop-color="#FACC15"/>
+              <stop offset="100%" stop-color="#D97706"/>
+            </radialGradient>
+          </defs>
+
+          <!-- Anillos de Brújula Botánica -->
+          <circle class="compass-ring-draw" cx="110" cy="110" r="98" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="1.2" stroke-dasharray="616" stroke-dashoffset="616"/>
+          <g class="compass-ticks">
+            <circle cx="110" cy="110" r="88" fill="none" stroke="rgba(52,211,153,0.34)" stroke-width="1" stroke-dasharray="4 7"/>
+            <line x1="110" y1="6" x2="110" y2="14" stroke="#E4007C" stroke-width="2" stroke-linecap="round"/>
+            <line x1="110" y1="206" x2="110" y2="214" stroke="rgba(255,255,255,0.45)" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="6" y1="110" x2="14" y2="110" stroke="rgba(255,255,255,0.45)" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="206" y1="110" x2="214" y2="110" stroke="rgba(255,255,255,0.45)" stroke-width="1.5" stroke-linecap="round"/>
+          </g>
+
+          <g transform="translate(110 110)">
+            <!-- 4 Hojas Botánicas Esmeralda -->
+            <g transform="rotate(45)"><path class="dahlia-leaf" style="--p-delay: 0.05s" d="M0 -14 C18 -38 22 -72 0 -90 C-22 -72 -18 -38 0 -14 Z" fill="url(#intro-leaf-grad)"/></g>
+            <g transform="rotate(135)"><path class="dahlia-leaf" style="--p-delay: 0.11s" d="M0 -14 C18 -38 22 -72 0 -90 C-22 -72 -18 -38 0 -14 Z" fill="url(#intro-leaf-grad)"/></g>
+            <g transform="rotate(225)"><path class="dahlia-leaf" style="--p-delay: 0.17s" d="M0 -14 C18 -38 22 -72 0 -90 C-22 -72 -18 -38 0 -14 Z" fill="url(#intro-leaf-grad)"/></g>
+            <g transform="rotate(315)"><path class="dahlia-leaf" style="--p-delay: 0.23s" d="M0 -14 C18 -38 22 -72 0 -90 C-22 -72 -18 -38 0 -14 Z" fill="url(#intro-leaf-grad)"/></g>
+
+            <!-- 8 Pétalos Exteriores Rosa Mexicano -->
+            <g transform="rotate(0)"><path class="dahlia-petal-outer" style="--p-delay: 0.12s" d="M0 -12 C16 -28 19 -60 0 -78 C-19 -60 -16 -28 0 -12 Z" fill="url(#intro-petal-outer-grad)"/></g>
+            <g transform="rotate(45)"><path class="dahlia-petal-outer" style="--p-delay: 0.17s" d="M0 -12 C16 -28 19 -60 0 -78 C-19 -60 -16 -28 0 -12 Z" fill="url(#intro-petal-outer-grad)"/></g>
+            <g transform="rotate(90)"><path class="dahlia-petal-outer" style="--p-delay: 0.22s" d="M0 -12 C16 -28 19 -60 0 -78 C-19 -60 -16 -28 0 -12 Z" fill="url(#intro-petal-outer-grad)"/></g>
+            <g transform="rotate(135)"><path class="dahlia-petal-outer" style="--p-delay: 0.27s" d="M0 -12 C16 -28 19 -60 0 -78 C-19 -60 -16 -28 0 -12 Z" fill="url(#intro-petal-outer-grad)"/></g>
+            <g transform="rotate(180)"><path class="dahlia-petal-outer" style="--p-delay: 0.32s" d="M0 -12 C16 -28 19 -60 0 -78 C-19 -60 -16 -28 0 -12 Z" fill="url(#intro-petal-outer-grad)"/></g>
+            <g transform="rotate(225)"><path class="dahlia-petal-outer" style="--p-delay: 0.37s" d="M0 -12 C16 -28 19 -60 0 -78 C-19 -60 -16 -28 0 -12 Z" fill="url(#intro-petal-outer-grad)"/></g>
+            <g transform="rotate(270)"><path class="dahlia-petal-outer" style="--p-delay: 0.42s" d="M0 -12 C16 -28 19 -60 0 -78 C-19 -60 -16 -28 0 -12 Z" fill="url(#intro-petal-outer-grad)"/></g>
+            <g transform="rotate(315)"><path class="dahlia-petal-outer" style="--p-delay: 0.47s" d="M0 -12 C16 -28 19 -60 0 -78 C-19 -60 -16 -28 0 -12 Z" fill="url(#intro-petal-outer-grad)"/></g>
+
+            <!-- 8 Pétalos Interiores Perla-Rosa -->
+            <g transform="rotate(22.5)"><path class="dahlia-petal-inner" style="--p-delay: 0.26s" d="M0 -9 C11 -22 13 -46 0 -58 C-13 -46 -11 -22 0 -9 Z" fill="url(#intro-petal-inner-grad)"/></g>
+            <g transform="rotate(67.5)"><path class="dahlia-petal-inner" style="--p-delay: 0.31s" d="M0 -9 C11 -22 13 -46 0 -58 C-13 -46 -11 -22 0 -9 Z" fill="url(#intro-petal-inner-grad)"/></g>
+            <g transform="rotate(112.5)"><path class="dahlia-petal-inner" style="--p-delay: 0.36s" d="M0 -9 C11 -22 13 -46 0 -58 C-13 -46 -11 -22 0 -9 Z" fill="url(#intro-petal-inner-grad)"/></g>
+            <g transform="rotate(157.5)"><path class="dahlia-petal-inner" style="--p-delay: 0.41s" d="M0 -9 C11 -22 13 -46 0 -58 C-13 -46 -11 -22 0 -9 Z" fill="url(#intro-petal-inner-grad)"/></g>
+            <g transform="rotate(202.5)"><path class="dahlia-petal-inner" style="--p-delay: 0.46s" d="M0 -9 C11 -22 13 -46 0 -58 C-13 -46 -11 -22 0 -9 Z" fill="url(#intro-petal-inner-grad)"/></g>
+            <g transform="rotate(247.5)"><path class="dahlia-petal-inner" style="--p-delay: 0.51s" d="M0 -9 C11 -22 13 -46 0 -58 C-13 -46 -11 -22 0 -9 Z" fill="url(#intro-petal-inner-grad)"/></g>
+            <g transform="rotate(292.5)"><path class="dahlia-petal-inner" style="--p-delay: 0.56s" d="M0 -9 C11 -22 13 -46 0 -58 C-13 -46 -11 -22 0 -9 Z" fill="url(#intro-petal-inner-grad)"/></g>
+            <g transform="rotate(337.5)"><path class="dahlia-petal-inner" style="--p-delay: 0.61s" d="M0 -9 C11 -22 13 -46 0 -58 C-13 -46 -11 -22 0 -9 Z" fill="url(#intro-petal-inner-grad)"/></g>
+
+            <!-- Centro Dorado -->
+            <g class="dahlia-core">
+              <circle cx="0" cy="0" r="17" fill="url(#intro-core-grad)" stroke="#FFFFFF" stroke-width="2"/>
+              <circle cx="0" cy="0" r="7" fill="#B45309" opacity="0.35"/>
+            </g>
+          </g>
+        </svg>
+      </div>
+
+      <div class="intro-copy">
+        <div class="intro-eyebrow">
+          <span class="intro-eyebrow-dot"></span>
+          <span>XOCHIMILCO · CDMX</span>
+        </div>
+        <div class="intro-title-mask">
+          <h1 class="intro-title">CUEMANCO</h1>
+        </div>
+        <div class="intro-sub-mask">
+          <p class="intro-subtitle">Mercado de Plantas y Flores</p>
+        </div>
+        <div class="intro-meta-row">
+          <span>Mapa Interactivo</span>
+          <span class="intro-sep">•</span>
+          <span id="intro-live-status" class="intro-live-status">Abierto ahora</span>
+        </div>
+      </div>
+
+      <div class="intro-progress-track" aria-hidden="true">
+        <div class="intro-progress-fill"></div>
+      </div>
+    </div>
+
+    <button id="intro-skip-btn" class="intro-skip-btn" type="button">
+      <span>Entrar al mapa</span>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+        <polyline points="12 5 19 12 12 19"></polyline>
+      </svg>
+    </button>
   </div>
 
   <script type="module" src="/src/main.js"></script>

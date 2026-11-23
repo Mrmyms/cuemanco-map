@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="cuemanco-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E4007C"/>
+      <stop offset="100%" stop-color="#B80064"/>
+    </linearGradient>
+    <linearGradient id="petal-glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#FCE7F3"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#cuemanco-bg)"/>
+  <!-- Hojas botánicas -->
+  <path d="M18 46 C12 39 14 30 23 30 C23 38 22 43 18 46 Z" fill="#34D399"/>
+  <path d="M46 46 C52 39 50 30 41 30 C41 38 42 43 46 46 Z" fill="#10B981"/>
+  <!-- Pétalos dalia -->
+  <g transform="translate(32 31)" fill="url(#petal-glow)">
+    <ellipse cx="0" cy="-12" rx="5.2" ry="9.5"/>
+    <ellipse cx="0" cy="-12" rx="5.2" ry="9.5" transform="rotate(45)"/>
+    <ellipse cx="0" cy="-12" rx="5.2" ry="9.5" transform="rotate(90)"/>
+    <ellipse cx="0" cy="-12" rx="5.2" ry="9.5" transform="rotate(135)"/>
+    <ellipse cx="0" cy="-12" rx="5.2" ry="9.5" transform="rotate(180)"/>
+    <ellipse cx="0" cy="-12" rx="5.2" ry="9.5" transform="rotate(225)"/>
+    <ellipse cx="0" cy="-12" rx="5.2" ry="9.5" transform="rotate(270)"/>
+    <ellipse cx="0" cy="-12" rx="5.2" ry="9.5" transform="rotate(315)"/>
+  </g>
+  <!-- Centro cálido -->
+  <circle cx="32" cy="31" r="6" fill="#FDE047"/>
+  <circle cx="32" cy="31" r="2.8" fill="#D97706"/>
+</svg>

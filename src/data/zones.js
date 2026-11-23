@@ -1,5 +1,8 @@
 // Zonas y sectores reales del Mercado de Plantas y Flores de Cuemanco
-// Coordenadas calibradas al sistema lógico del plano base (1222 x 815)
+// Coordenadas calibradas para proyección geográfica sobre el mercado
+
+const DAILY_MARKET_HOURS = { days: [0, 1, 2, 3, 4, 5, 6], open: 8, close: 18.5 };
+const EXTENDED_PARKING_HOURS = { days: [0, 1, 2, 3, 4, 5, 6], open: 7, close: 19 };
 
 export const MARKET_ZONES = [
   {
@@ -13,6 +16,8 @@ export const MARKET_ZONES = [
     categoriaNombre: 'Administración y Hospital de Plantas',
     color: '#0284C7',
     icon: '🏛️',
+    iconKey: 'building',
+    showMapLabel: false,
     polygon: [
       [522, 168],
       [602, 174],
@@ -21,6 +26,7 @@ export const MARKET_ZONES = [
     ],
     svgCoords: [560, 208],
     horario: 'Lunes a Domingo: 8:00 AM - 6:30 PM',
+    schedule: DAILY_MARKET_HOURS,
     descripcion: 'Sede administrativa del Mercado de Cuemanco y ubicación del Hospital y Centro de Conservación de Plantas (IMFFSS A.C.) con talleres y asesoría fitosanitaria.',
     servicios: [
       'Oficinas Administrativas',
@@ -42,6 +48,9 @@ export const MARKET_ZONES = [
     categoriasAdicionales: ['arboles', 'tierra', 'macetas'],
     color: '#10B981',
     icon: '🪴',
+    iconKey: 'pottedPlant',
+    showMapLabel: true,
+    labelCoords: [265, 172],
     polygon: [
       [154, 122],
       [500, 148],
@@ -52,6 +61,7 @@ export const MARKET_ZONES = [
     ],
     svgCoords: [268, 285],
     horario: 'Lunes a Domingo: 8:00 AM - 6:30 PM',
+    schedule: DAILY_MARKET_HOURS,
     descripcion: 'Amplio sector poniente con viveros de plantas de ornato, árboles frutales y de sombra, huacales artesanales, tierra preparada y abonos.',
     servicios: [
       'Plantas de Ornato',
@@ -73,6 +83,9 @@ export const MARKET_ZONES = [
     categoriasAdicionales: ['interior', 'orquideas', 'suculentas'],
     color: '#E4007C',
     icon: '🌸',
+    iconKey: 'flores',
+    showMapLabel: true,
+    labelCoords: [455, 395],
     polygon: [
       [344, 246],
       [662, 250],
@@ -82,6 +95,7 @@ export const MARKET_ZONES = [
     ],
     svgCoords: [495, 365],
     horario: 'Lunes a Domingo: 8:00 AM - 6:30 PM',
+    schedule: DAILY_MARKET_HOURS,
     descripcion: 'Pasillos centrales del mercado dedicados a flor de temporada, follaje decorativo, plantas de interior, orquídeas y suculentas.',
     servicios: [
       'Flores de Temporada',
@@ -103,6 +117,9 @@ export const MARKET_ZONES = [
     categoriasAdicionales: ['interior', 'arboles'],
     color: '#D97706',
     icon: '🏺',
+    iconKey: 'macetas',
+    showMapLabel: true,
+    labelCoords: [785, 295],
     polygon: [
       [616, 158],
       [978, 190],
@@ -114,6 +131,7 @@ export const MARKET_ZONES = [
     ],
     svgCoords: [815, 275],
     horario: 'Lunes a Domingo: 8:30 AM - 6:00 PM',
+    schedule: { days: [0, 1, 2, 3, 4, 5, 6], open: 8.5, close: 18 },
     descripcion: 'Sector oriente especializado en macetas de fibra de vidrio, cerámica de alta temperatura, barro tradicional, talavera y proyectos de paisajismo.',
     servicios: [
       'Macetas de Diseño',
@@ -134,6 +152,8 @@ export const MARKET_ZONES = [
     categoriaNombre: 'Macetas y Jardineras de Gran Formato',
     color: '#B45309',
     icon: '🏺',
+    iconKey: 'macetas',
+    showMapLabel: false,
     polygon: [
       [304, 466],
       [514, 490],
@@ -142,6 +162,7 @@ export const MARKET_ZONES = [
     ],
     svgCoords: [382, 508],
     horario: 'Lunes a Domingo: 8:00 AM - 6:00 PM',
+    schedule: { days: [0, 1, 2, 3, 4, 5, 6], open: 8, close: 18 },
     descripcion: 'Franja sur junto al estacionamiento de Lateral 12 especializada en macetas de gran formato, jardineras y facilidades de carga directa.',
     servicios: [
       'Jardineras Gran Formato',
@@ -162,6 +183,8 @@ export const MARKET_ZONES = [
     categoriasAdicionales: ['flores'],
     color: '#16A34A',
     icon: '🌳',
+    iconKey: 'arboles',
+    showMapLabel: false,
     polygon: [
       [226, 466],
       [300, 466],
@@ -170,6 +193,7 @@ export const MARKET_ZONES = [
     ],
     svgCoords: [263, 509],
     horario: 'Lunes a Domingo: 8:00 AM - 6:00 PM',
+    schedule: { days: [0, 1, 2, 3, 4, 5, 6], open: 8, close: 18 },
     descripcion: 'Espacio ajardinado arbolado y pet-friendly al aire libre, punto de encuentro y descanso entre recorridos por los viveros.',
     servicios: [
       'Área Arbolada',
@@ -190,6 +214,8 @@ export const MARKET_ZONES = [
     categoriaNombre: 'Comida y Bebidas Tradicionales',
     color: '#EA580C',
     icon: '🌮',
+    iconKey: 'utensils',
+    showMapLabel: false,
     polygon: [
       [134, 456],
       [224, 464],
@@ -200,6 +226,7 @@ export const MARKET_ZONES = [
     ],
     svgCoords: [178, 535],
     horario: 'Viernes a Domingo: 7:00 AM - 4:30 PM',
+    schedule: { days: [5, 6, 0], open: 7, close: 16.5 },
     descripcion: 'Corredor gastronómico tradicional con tacos de costilla, pollo, cecina, quesadillas y aguas frescas de temporada.',
     servicios: [
       'Tacos y Antojitos',
@@ -219,6 +246,8 @@ export const MARKET_ZONES = [
     categoriaNombre: 'Estacionamiento y Carga',
     color: '#475569',
     icon: '🅿️',
+    iconKey: 'estacionamiento',
+    showMapLabel: false,
     polygon: [
       [278, 18],
       [1034, 78],
@@ -227,6 +256,7 @@ export const MARKET_ZONES = [
     ],
     svgCoords: [634, 96],
     horario: 'Lunes a Domingo: 7:00 AM - 7:00 PM',
+    schedule: EXTENDED_PARKING_HOURS,
     descripcion: 'Estacionamiento principal de gran capacidad en el costado norte del mercado con acceso directo a la zona de viveros, Edificio Central y Macetas.',
     servicios: [
       'Cajones Amplios',
@@ -246,6 +276,8 @@ export const MARKET_ZONES = [
     categoriaNombre: 'Acceso Vehicular y Estacionamiento',
     color: '#0F766E',
     icon: '🚗',
+    iconKey: 'car',
+    showMapLabel: false,
     polygon: [
       [258, 624],
       [954, 326],
@@ -254,6 +286,7 @@ export const MARKET_ZONES = [
     ],
     svgCoords: [618, 494],
     horario: 'Lunes a Domingo: 7:00 AM - 7:00 PM',
+    schedule: EXTENDED_PARKING_HOURS,
     descripcion: 'Corredor vehicular y estacionamiento sur sobre Lateral 12 (Anillo Periférico) con bahía de carga y conexión hacia Parque Ecológico de Xochimilco.',
     servicios: [
       'Acceso Vehicular Periférico',
@@ -261,5 +294,29 @@ export const MARKET_ZONES = [
       'Estacionamiento Sur'
     ],
     isZone: true
+  }
+];
+
+export const MAP_LANDMARKS = [
+  {
+    id: 'lm-canal',
+    label: 'Av. Canal Nacional',
+    kind: 'road',
+    angle: -86,
+    svgCoords: [58, 360]
+  },
+  {
+    id: 'lm-periferico',
+    label: 'Anillo Periférico · Blvd. A. Ruiz Cortines',
+    kind: 'highway',
+    angle: -23,
+    svgCoords: [790, 505]
+  },
+  {
+    id: 'lm-parque',
+    label: 'Parque Ecológico de Xochimilco',
+    kind: 'nature',
+    angle: 0,
+    svgCoords: [930, 88]
   }
 ];
